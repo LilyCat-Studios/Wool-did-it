@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &4190079470399484776
+--- !u!1 &226425754017613490
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,24 +8,24 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 3381129005279002232}
-  - component: {fileID: 1799528378407407554}
-  - component: {fileID: 5900201015621730986}
-  - component: {fileID: 8506198916427095172}
+  - component: {fileID: 6978282746850814373}
+  - component: {fileID: 3182823887598020503}
+  - component: {fileID: 4384441474421565173}
+  - component: {fileID: 9003344600463002336}
   m_Layer: 0
-  m_Name: Main Camera
-  m_TagString: MainCamera
+  m_Name: Camera
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &3381129005279002232
+  m_IsActive: 0
+--- !u!4 &6978282746850814373
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4190079470399484776}
+  m_GameObject: {fileID: 226425754017613490}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -34,13 +34,13 @@ Transform:
   m_Children: []
   m_Father: {fileID: 7695631609539420633}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!20 &1799528378407407554
+--- !u!20 &3182823887598020503
 Camera:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4190079470399484776}
+  m_GameObject: {fileID: 226425754017613490}
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
@@ -70,7 +70,7 @@ Camera:
   field of view: 60
   orthographic: 0
   orthographic size: 5
-  m_Depth: -1
+  m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -85,26 +85,26 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!81 &5900201015621730986
+--- !u!81 &4384441474421565173
 AudioListener:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4190079470399484776}
+  m_GameObject: {fileID: 226425754017613490}
   m_Enabled: 1
---- !u!114 &8506198916427095172
+--- !u!114 &9003344600463002336
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4190079470399484776}
+  m_GameObject: {fileID: 226425754017613490}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalCameraData
   m_RenderShadows: 1
   m_RequiresDepthTextureOption: 2
   m_RequiresOpaqueTextureOption: 2
@@ -149,7 +149,6 @@ GameObject:
   - component: {fileID: 6791901894211406850}
   - component: {fileID: 2342667948000455286}
   - component: {fileID: 6964391525222046523}
-  - component: {fileID: 5732398955170009319}
   - component: {fileID: 2425808252165988819}
   - component: {fileID: 5127570382487275776}
   - component: {fileID: 8661512718547908353}
@@ -173,7 +172,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 3381129005279002232}
+  - {fileID: 6978282746850814373}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &6791901894211406850
@@ -258,36 +257,6 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &5732398955170009319
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7901955192755198282}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
-  m_Actions: {fileID: -944628639613478452, guid: 3627b8d8279b7fc4d818a0ada0966242, type: 3}
-  m_NotificationBehavior: 0
-  m_UIInputModule: {fileID: 0}
-  m_DeviceLostEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_DeviceRegainedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ControlsChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ActionEvents: []
-  m_NeverAutoSwitchControlSchemes: 0
-  m_DefaultControlScheme: 
-  m_DefaultActionMap: Player
-  m_SplitScreenIndex: -1
-  m_Camera: {fileID: 0}
 --- !u!114 &2425808252165988819
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -306,6 +275,7 @@ MonoBehaviour:
   moveSpeed: 5
   gravity: -9.81
   moveAction: {fileID: 4429075678240058994, guid: 3627b8d8279b7fc4d818a0ada0966242, type: 3}
+  playerCamera: {fileID: 3182823887598020503}
 --- !u!114 &5127570382487275776
 MonoBehaviour:
   m_ObjectHideFlags: 0
