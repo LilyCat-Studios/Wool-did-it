@@ -10,27 +10,44 @@ public class SelectImages : MonoBehaviour {
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start() {
-        index = UnityEngine.Random.Range(0, possibleClues.Count - 1);
+        index = GetRandomIndex(possibleClues.Count);
         clueImage = GetComponentInChildren<RawImage>();
         clueImage.texture = possibleClues[index];
     }
 
     public void NextClue() {
-        index++;
-        if(index >= possibleClues.Count) {
-            index = 0;
-        }
+        index = GetNextIndex(index, possibleClues.Count);
         clueImage.texture = possibleClues[index];
     }
 
     public void PrevClue() {
-        index--;
-        if(index < 0) {
-            index = possibleClues.Count - 1;
-        }
+        index = GetPrevIndex(index, possibleClues.Count);
         clueImage.texture = possibleClues[index];
     }
     
+    internal static int GetRandomIndex(int count) {
+        return UnityEngine.Random.Range(0, count - 1);
+    }
+
+    internal static int GetNextIndex(int currentIndex, int count)
+    {
+        int nextIndex = currentIndex + 1;
+        if(nextIndex >= count) 
+        {
+            nextIndex = 0;
+        }
+        return nextIndex;
+    }
+
+    internal static int GetPrevIndex(int currentIndex, int count)
+    {
+        int prevIndex = currentIndex - 1;
+        if(prevIndex < 0) 
+        {
+            prevIndex = count - 1;
+        }
+        return prevIndex;
+    }
     
     // Update is called once per frame
     void Update()

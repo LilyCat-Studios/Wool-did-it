@@ -15,22 +15,9 @@ public class CheckGuess : MonoBehaviour {
     }
 
     public void CheckGuesses() {
-        _guessGood = true;
         SelectImages[] guessPanels = GetComponentsInChildren<SelectImages>(true);
-        foreach(SelectImages guess in guessPanels) {
-            switch(guess.gameObject.name) {
-            case "What":
-                _guessGood = guess.index == goodWhatIndex ? _guessGood : false;
-                break;
-            case "Where":
-                _guessGood = guess.index == goodWhereIndex ? _guessGood : false;
-                break;
-            case "Who":
-                _guessGood = guess.index == goodWhoIndex ? _guessGood : false;
-                break;
-                
-            }
-        }
+        _guessGood = AreAllGuessesCorrect(guessPanels);
+
         playerController controller = gameObject.transform.parent.parent.parent.parent.GetComponentInChildren<playerController>();
         controller.OnPickup(null);
 
@@ -38,12 +25,41 @@ public class CheckGuess : MonoBehaviour {
             system.Play();
             SheepAI[] ais = gameObject.transform.parent.parent.parent.parent.GetComponentsInChildren<SheepAI>();
             foreach(SheepAI ai in ais) {
-                ai.interestPoints.RemoveRange(0, ai.interestPoints.Count);
-                ai.interestPoints.Add(winPOI);
-                ai.maxWanderDist = 5f;
-                ai.destArrivedDist = 1f;
+                SendToWinPoint(ai, winPOI);
             }
         }
+    }
+
+    internal bool AreAllGuessesCorrect(SelectImages[] guessPanels) {
+        bool guessGood = true;
+        foreach(SelectImages guess in guessPanels) {
+            switch(guess.gameObject.name) {
+            case "What":
+                guessGood = guess.index == goodWhatIndex ? guessGood : false;
+                break;
+            case "Where":
+                guessGood = guess.index == goodWhereIndex ? guessGood : false;
+                break;
+            case "Who":
+                guessGood = guess.index == goodWhoIndex ? guessGood : false;
+                break;
+                
+            }
+        }
+        return guessGood;
+    }
+
+    internal static void SendToWinPoint(SheepAI ai, Transform winPoint) {
+        ai.interestPoints.RemoveRange(0, ai.interestPoints.Count);
+        ai.interestPoints.Add(winPoint);
+        ai.maxWanderDist = 5f;
+        ai.destArrivedDist = 1f;
+    }
+
+    internal void SetCorrectAnswers(int who, int what, int where) {
+        goodWhoIndex = who;
+        goodWhatIndex = what;
+        goodWhereIndex = where;
     }
     
     // Update is called once per frame
