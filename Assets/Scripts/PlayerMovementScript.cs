@@ -1,97 +1,104 @@
+using PurrNet;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Mirror;
 
-[RequireComponent(typeof(NetworkIdentity))]
 [RequireComponent(typeof(CharacterController))]
-public class PlayerMovementScript : NetworkBehaviour
+public sealed class PlayerMovementScript : NetworkBehaviour
 {
-    [Header("Movement Settings")]
+    [Header("Movement & Look")]
     [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float jumpHeight = 1.5f;
     [SerializeField] private float gravity = -9.81f;
+    [SerializeField] private float mouseSensitivity = 0.15f;
 
     [Header("References")]
     [SerializeField] private InputActionReference moveAction;
+    [SerializeField] private InputActionReference lookAction;
+    [SerializeField] private InputActionReference jumpAction;
     [SerializeField] private Camera playerCamera;
 
     private CharacterController controller;
-    private AudioListener audioListener;
     private Camera fallbackSceneCamera;
     private float verticalVelocity;
+    private float cameraPitch;
 
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
+        controller.enabled = false;
 
-        if (playerCamera == null)
-            playerCamera = GetComponentInChildren<Camera>(true);
-
-        if (playerCamera != null)
-        {
-            audioListener = playerCamera.GetComponent<AudioListener>();
-            playerCamera.gameObject.SetActive(false);
-        }
+        if (!playerCamera) playerCamera = GetComponentInChildren<Camera>(true);
+        if (playerCamera) playerCamera.gameObject.SetActive(false);
     }
 
-    public override void OnStartLocalPlayer()
+    protected override void OnSpawned(bool asServer)
     {
-        // Turn off any default scene camera so it doesn't override the player's camera
+        base.OnSpawned(asServer);
+        if (!asServer && isOwner) EnableLocalPlayer();
+    }
+
+    protected override void OnDespawned(bool asServer)
+    {
+        base.OnDespawned(asServer);
+        if (!asServer && isOwner) DisableLocalPlayer();
+    }
+
+    private void EnableLocalPlayer()
+    {
+        controller.enabled = true;
+
         fallbackSceneCamera = Camera.main;
-        if (fallbackSceneCamera != null && fallbackSceneCamera != playerCamera)
-        {
+        if (fallbackSceneCamera && fallbackSceneCamera != playerCamera)
             fallbackSceneCamera.gameObject.SetActive(false);
-        }
 
-        if (playerCamera != null)
-        {
-            playerCamera.gameObject.SetActive(true);
-            if (audioListener != null) audioListener.enabled = true;
-        }
+        if (playerCamera) playerCamera.gameObject.SetActive(true);
 
-        if (moveAction != null && moveAction.action != null)
-        {
-            moveAction.action.Enable();
-        }
-        else
-        {
-            Debug.LogError($"[{nameof(PlayerMovementScript)}] 'Move Action' is not assigned on {gameObject.name}!", this);
-        }
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
+        moveAction?.action?.Enable();
+        lookAction?.action?.Enable();
+        jumpAction?.action?.Enable();
     }
 
-    public override void OnStopLocalPlayer()
+    private void DisableLocalPlayer()
     {
-        if (playerCamera != null)
-        {
-            playerCamera.gameObject.SetActive(false);
-        }
+        controller.enabled = false;
 
-        if (fallbackSceneCamera != null)
-        {
-            fallbackSceneCamera.gameObject.SetActive(true);
-        }
+        if (playerCamera) playerCamera.gameObject.SetActive(false);
+        if (fallbackSceneCamera) fallbackSceneCamera.gameObject.SetActive(true);
 
-        if (moveAction != null && moveAction.action != null)
-        {
-            moveAction.action.Disable();
-        }
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
+        moveAction?.action?.Disable();
+        lookAction?.action?.Disable();
+        jumpAction?.action?.Disable();
     }
 
     private void Update()
     {
-        if (!isLocalPlayer) return;
-        if (moveAction == null || moveAction.action == null) return;
+        if (!isOwner || !controller.enabled) return;
 
-        if (controller.isGrounded && verticalVelocity < 0f)
+        Vector2 move = moveAction ? moveAction.action.ReadValue<Vector2>() : Vector2.zero;
+        Vector2 look = lookAction ? lookAction.action.ReadValue<Vector2>() * mouseSensitivity : Vector2.zero;
+        bool jump = jumpAction && jumpAction.action.WasPressedThisFrame();
+
+        cameraPitch = Mathf.Clamp(cameraPitch - look.y, -89f, 89f);
+        if (playerCamera) playerCamera.transform.localRotation = Quaternion.Euler(cameraPitch, 0f, 0f);
+        transform.Rotate(Vector3.up * look.x);
+
+        if (controller.isGrounded)
         {
-            verticalVelocity = -2f;
+            if (verticalVelocity < 0f) verticalVelocity = -2f;
+            if (jump) verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
 
-        Vector2 input = moveAction.action.ReadValue<Vector2>();
-        Vector3 horizontalMove = new Vector3(input.x, 0f, input.y) * moveSpeed;
-
         verticalVelocity += gravity * Time.deltaTime;
-        Vector3 finalVelocity = horizontalMove + (Vector3.up * verticalVelocity);
 
-        controller.Move(finalVelocity * Time.deltaTime);
+        Vector3 moveDir = transform.right * move.x + transform.forward * move.y;
+        if (moveDir.sqrMagnitude > 1f) moveDir.Normalize();
+
+        controller.Move(((moveDir * moveSpeed) + (Vector3.up * verticalVelocity)) * Time.deltaTime);
     }
 }

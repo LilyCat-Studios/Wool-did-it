@@ -1,11 +1,14 @@
 {
   "dependencies": {
+    "com.playeveryware.eos": "https://github.com/EOS-Contrib/eos_plugin_for_unity_upm.git",
     "com.unity.inputsystem": "1.20.1",
     "com.unity.multiplayer.center": "1.0.1",
     "com.unity.multiplayer.playmode": "2.0.2",
     "com.unity.nuget.newtonsoft-json": "3.2.2",
     "com.unity.render-pipelines.universal": "17.3.0",
     "com.unity.ugui": "2.0.0",
+    "dev.purrnet.eostransport": "https://github.com/PurrNet/PurrNetEOSTransport.git?path=/Assets/EOSTransport#v1.0.0",
+    "dev.purrnet.purrnet": "https://github.com/PurrNet/PurrNet.git?path=/Assets/PurrNet#release",
     "com.unity.modules.accessibility": "1.0.0",
     "com.unity.modules.adaptiveperformance": "1.0.0",
     "com.unity.modules.ai": "1.0.0",

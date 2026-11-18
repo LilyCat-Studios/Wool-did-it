@@ -1,0 +1,38 @@
+{
+  "ProductName": "Wool Did It",
+  "ProductId": "a90391692fd54c1bb29d56ce1b9365a6",
+  "ProductVersion": "1.0.0",
+  "imported": true,
+  "Clients": [
+    {
+      "Value": {
+        "ClientId": "xyza7891NyONG6oCJJVbDsixx3f7SIuB",
+        "ClientSecret": "aA0JRkZlzn34Igxsf3sKfpXDwQgGTOC6WhdN/NGIGho",
+        "EncryptionKey": "276F0F319CEFFD1CA8154B4E28B8A0E3344B28158B94C75A44D2EDDFB4A60C6A"
+      },
+      "Name": "Client"
+    }
+  ],
+  "Environments": {
+    "Deployments": [
+      {
+        "Value": {
+          "SandboxId": {
+            "Value": "a8ad4740c8a241948efd12c680fc5659"
+          },
+          "DeploymentId": "119f5aa95a584e4485afc36897ca6663"
+        },
+        "Name": "Deployment"
+      }
+    ],
+    "Sandboxes": [
+      {
+        "Value": {
+          "Value": "a8ad4740c8a241948efd12c680fc5659"
+        },
+        "Name": "Sandbox"
+      }
+    ]
+  },
+  "schemaVersion": "1.0"
+}
