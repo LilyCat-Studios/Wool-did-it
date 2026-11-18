@@ -13,14 +13,27 @@ namespace Code.Scripts
         {
             _hats = GameObject.FindGameObjectsWithTag("Hat");
             _activeHat = 0;
-            
+
             foreach (var hat in _hats)
             {
                 hat.SetActive(false);
             }
         }
 
-        public void SwapHat()
+        public void SwapHatLeft()
+        {
+            _hats[_activeHat].SetActive(false);
+
+            _activeHat -= 1;
+            if (_activeHat == -1)
+            {
+                _activeHat = _hats.Length - 1;
+            }
+
+            _hats[_activeHat].SetActive(true);
+        }
+
+        public void SwapHatRight()
         {
             _hats[_activeHat].SetActive(false);
 
