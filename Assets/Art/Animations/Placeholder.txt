@@ -1,0 +1,1 @@
+This file ensures the folder structure can be placed on git. It can be removed once another file is present in the folder.
