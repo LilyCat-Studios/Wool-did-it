@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="692a0bb8-aa5f-47a9-b404-ec18b509817d" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Assets/Level/Prefabs/Hat.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Level/Prefabs/Hat.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.A-Wolf-In-Sheeps-Clothing/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.A-Wolf-In-Sheeps-Clothing/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Code/Scripts/CustomizerManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Code/Scripts/CustomizerManager.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Level/Scenes/CharacterCustomisationScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Level/Scenes/CharacterCustomisationScene.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/TagManager.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/TagManager.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,87 +17,87 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.0" />
-      <entry key="MS500" value="1.0" />
-      <entry key="S2" value="1.0" />
-      <entry key="S5" value="1.0000000000647802" />
-      <entry key="S10" value="1.0000110567235223" />
-      <entry key="S30" value="1.0777703733216992" />
-      <entry key="S60" value="2.0916666956931684" />
-      <entry key="M2" value="5.531344470175771" />
-      <entry key="M5" value="11.969558998008315" />
-      <entry key="M10" value="15.796177178094286" />
-      <entry key="M15" value="17.35596383309977" />
-      <entry key="M30" value="19.084373864820872" />
-      <entry key="H1" value="20.01754420226558" />
-      <entry key="H2" value="20.50244903151634" />
-      <entry key="H4" value="20.749622975325128" />
-      <entry key="D1" value="20.958046274045323" />
-      <entry key="W1" value="20.994001095992488" />
+      <entry key="MS100" value="1.7885384673926783" />
+      <entry key="MS500" value="3.6366555057562575" />
+      <entry key="S2" value="5.148628111649387" />
+      <entry key="S5" value="6.219699907796994" />
+      <entry key="S10" value="7.883693539211865" />
+      <entry key="S30" value="12.777876970573516" />
+      <entry key="S60" value="15.667078789286084" />
+      <entry key="M2" value="17.611707888587535" />
+      <entry key="M5" value="18.991732800213356" />
+      <entry key="M10" value="19.870549877469614" />
+      <entry key="M15" value="21.162927252857614" />
+      <entry key="M30" value="25.71263015920324" />
+      <entry key="H1" value="31.545825882281445" />
+      <entry key="H2" value="36.3125944326416" />
+      <entry key="H4" value="39.37357451554819" />
+      <entry key="D1" value="42.35208402130478" />
+      <entry key="W1" value="42.906314831678635" />
     </decayedCancelled>
     <decayedSelected>
-      <entry key="MS100" value="1.4020590113995355E-201" />
-      <entry key="MS500" value="6.750769174124172E-41" />
-      <entry key="S2" value="9.064384399234114E-11" />
-      <entry key="S5" value="9.614698212521182E-5" />
-      <entry key="S10" value="0.009817961167117925" />
-      <entry key="S30" value="0.2617944341074566" />
-      <entry key="S60" value="0.9060273540635085" />
-      <entry key="M2" value="2.125001057194283" />
-      <entry key="M5" value="3.876453187385509" />
-      <entry key="M10" value="4.806034360617692" />
-      <entry key="M15" value="5.171055362928389" />
-      <entry key="M30" value="5.568036955782653" />
-      <entry key="H1" value="5.7794456383437645" />
-      <entry key="H2" value="5.888553541824453" />
-      <entry key="H4" value="5.943981125240495" />
-      <entry key="D1" value="5.990622173429929" />
-      <entry key="W1" value="5.998659294154194" />
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="0.0" />
+      <entry key="S2" value="0.0" />
+      <entry key="S5" value="1.2044457880140624E-184" />
+      <entry key="S10" value="1.0974854328576256E-92" />
+      <entry key="S30" value="2.2740857394433944E-31" />
+      <entry key="S60" value="5.61802890385215E-16" />
+      <entry key="M2" value="3.993922957218828E-8" />
+      <entry key="M5" value="0.00324386504066553" />
+      <entry key="M10" value="0.157002693339853" />
+      <entry key="M15" value="0.5789437260886764" />
+      <entry key="M30" value="2.146548735866444" />
+      <entry key="H1" value="4.141362819972981" />
+      <entry key="H2" value="5.755057934649495" />
+      <entry key="H4" value="6.785053045902346" />
+      <entry key="D1" value="7.783320314186959" />
+      <entry key="W1" value="7.96867927600292" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="2.1282099401098694E-5" />
-      <entry key="MS500" value="0.1163062072128769" />
-      <entry key="S2" value="0.5839836973739804" />
-      <entry key="S5" value="0.8065035538588097" />
-      <entry key="S10" value="0.9072714334036486" />
-      <entry key="S30" value="1.294472096290898" />
-      <entry key="S60" value="2.937715562933949" />
-      <entry key="M2" value="7.572281821636585" />
-      <entry key="M5" value="15.775744118348602" />
-      <entry key="M10" value="20.556738435867516" />
-      <entry key="M15" value="22.493946735277294" />
-      <entry key="M30" value="24.634361963858307" />
-      <entry key="H1" value="25.787560061292623" />
-      <entry key="H2" value="26.38618275502787" />
-      <entry key="H4" value="26.691167497857066" />
-      <entry key="D1" value="26.948258599829078" />
-      <entry key="W1" value="26.99260174819242" />
+      <entry key="MS100" value="1.5022098726345734" />
+      <entry key="MS500" value="3.1766611845512585" />
+      <entry key="S2" value="4.753526692783905" />
+      <entry key="S5" value="5.937395502475916" />
+      <entry key="S10" value="7.6435139797626395" />
+      <entry key="S30" value="12.593225599820066" />
+      <entry key="S60" value="15.541512871964128" />
+      <entry key="M2" value="17.53737220692955" />
+      <entry key="M5" value="18.96187771439422" />
+      <entry key="M10" value="20.00927926112921" />
+      <entry key="M15" value="21.72738841090213" />
+      <entry key="M30" value="27.847690570780536" />
+      <entry key="H1" value="35.678702259129366" />
+      <entry key="H2" value="42.06228863192191" />
+      <entry key="H4" value="46.1555861146268" />
+      <entry key="D1" value="50.134839139880654" />
+      <entry key="W1" value="50.874911816455096" />
     </decayedShown>
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 1
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 1
+}</component>
   <component name="ProjectId" id="3MHMDZBJA8d6MJ6Ow4tzBwlnxGz" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.readMode.enableVisualFormatting": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "cidr.known.project.marker": "true",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "research/character-customisation",
-    "ignore.virus.scanning.warn.message": "true",
-    "nodejs_package_manager_path": "npm"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;research/character-customisation&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
     <configuration name="Start Unity" type="RunUnityExe" factoryName="Unity Executable">
       <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\6000.3.28f1\Editor\Unity.exe" />
