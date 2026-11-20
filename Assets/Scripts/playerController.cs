@@ -52,8 +52,7 @@ public class playerController : MonoBehaviour
     {
         _controller.SimpleMove(_character.rotation * _moveDirection);
         
-        velocity.y += (_moveDirection.z - velocity.y) * Time.deltaTime * 10;
-        velocity.x += (_moveDirection.x - velocity.x) * Time.deltaTime * 10;
+        velocity = SmoothVelocity(velocity, _moveDirection, Time.deltaTime);
         
         _animator.SetFloat("speed", velocity.y);
         _animator.SetFloat("Strafe", velocity.x);
@@ -79,18 +78,22 @@ public class playerController : MonoBehaviour
     }
 
     private void UpdateTimeScale() {
-        Time.timeScale = _inBoard | _pauseMenu ? 0 : 1;
-        Cursor.lockState = _inBoard | _pauseMenu ? CursorLockMode.None : CursorLockMode.Locked;
+        bool pauseTime = ShouldPauseTime(_inBoard, _pauseMenu);
+        Time.timeScale = pauseTime ? 0 : 1;
+        Cursor.lockState = pauseTime ? CursorLockMode.None : CursorLockMode.Locked;
     }
 
     public void Quit() {
         Application.Quit();
     }
 
-    public void CheckForClues() {
+    public void CheckForClues() 
+    {
         Collider[] clueChecks = Physics.OverlapSphere(clueCheckOrigin.position, clueDistance);
-        foreach(Collider clue in clueChecks) {
-            if(clue.gameObject.name == "GuessBoard") {
+        foreach(Collider clue in clueChecks) 
+        {
+            if(clue.gameObject.name == "GuessBoard") 
+            {
                 print("Guessboard");
                 _boardCam = clue.gameObject.GetComponentInChildren<Camera>(true);
                 _boardCam.gameObject.SetActive(true);
@@ -98,7 +101,8 @@ public class playerController : MonoBehaviour
                 _inBoard = true;
                 UpdateTimeScale();
             }
-            if(!clue.CompareTag("Clue")) {
+            if(!clue.CompareTag("Clue")) 
+            {
                 continue;
             }
 
@@ -106,26 +110,22 @@ public class playerController : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmos() {
+    private void OnDrawGizmos() 
+    {
         Gizmos.color = Color.rebeccaPurple;
         Gizmos.DrawWireSphere(clueCheckOrigin.position, clueDistance);
         
     }
 
-    private void AddClue(GameObject clue) {
+    private void AddClue(GameObject clue) 
+    {
         RawImage[] images = clueBook.GetComponentsInChildren<RawImage>(true);
         foreach(RawImage image in images) {
             string bookClueName = image.gameObject.transform.parent.parent.gameObject.name;
             if(image.gameObject.transform.parent.gameObject.activeSelf) {
                 continue;
             }
-            if(bookClueName == "Weapon" && clue.name == "shovel") {
-                clueBook.SetActive(true);
-                image.gameObject.transform.parent.gameObject.SetActive(true);
-            } else if(bookClueName == "Wool" && clue.name == "Wool") {
-                clueBook.SetActive(true);
-                image.gameObject.transform.parent.gameObject.SetActive(true);
-            } else if(bookClueName == "Location" && clue.name == "bodytape") {
+            if(ClueMatchesPage(bookClueName, clue.name)) {
                 clueBook.SetActive(true);
                 image.gameObject.transform.parent.gameObject.SetActive(true);
             }
@@ -141,29 +141,66 @@ public class playerController : MonoBehaviour
     {
         Vector2 move = value.Get<Vector2>();
         
-        _moveDirection.x = move.x * speed;
-        _moveDirection.z = move.y * speed;
-        if (_moveDirection.z < 0) _moveDirection.z *= 0.5f;
-        _moveDirection.x *= 0.5f;
+        Vector3 direction = CalculateMoveDirection(move, speed);
+        _moveDirection.x = direction.x;
+        _moveDirection.z = direction.z;
         _animator.SetBool("moving", move != Vector2.zero);
     }
 
     private void OnMouseMove(InputValue value)
     {
-        _lookVector += value.Get<Vector2>() * cameraSpeed;
-        if (_lookVector.y < minAngle) _lookVector.y = minAngle;
-        else if (_lookVector.y > maxAngle) _lookVector.y = maxAngle;
+        _lookVector = ClampLook(_lookVector + value.Get<Vector2>() * cameraSpeed, minAngle, maxAngle);
         _camPivot.rotation = Quaternion.Euler(-_lookVector.y, _lookVector.x, 0f);
     }
 
 
     private void UpdateRotation()
     {
-        float delta = _lookVector.x - characterAngle;
-        delta %= 360f;
-        characterAngle = _lookVector.x - delta;
-        
-        characterAngle += delta * Time.deltaTime * turnSpeed;
+        characterAngle = CalculateCharacterAngle(_lookVector.x, characterAngle, Time.deltaTime, turnSpeed);
         _character.rotation = Quaternion.Euler(0, characterAngle, 0);
+    }
+
+    internal static Vector3 CalculateMoveDirection(Vector2 move, float speed) 
+    {
+        Vector3 direction = Vector3.zero;
+        direction.x = move.x * speed;
+        direction.z = move.y * speed;
+        if (direction.z < 0) direction.z *= 0.5f;
+        direction.x *= 0.5f;
+        return direction;
+    }
+
+    internal static Vector2 ClampLook(Vector2 look, float minAngle, float maxAngle) 
+    {
+        if (look.y < minAngle) look.y = minAngle;
+        else if (look.y > maxAngle) look.y = maxAngle;
+        return look;
+    }
+
+    internal static Vector2 SmoothVelocity(Vector2 velocity, Vector3 moveDirection, float deltaTime) 
+    {
+        velocity.y += (moveDirection.z - velocity.y) * deltaTime * 10;
+        velocity.x += (moveDirection.x - velocity.x) * deltaTime * 10;
+        return velocity;
+    }
+
+    internal static float CalculateCharacterAngle(float lookAngle, float characterAngle, float deltaTime, float turnSpeed) 
+    {
+        float delta = lookAngle - characterAngle;
+        delta %= 360f;
+        characterAngle = lookAngle - delta;
+        
+        characterAngle += delta * deltaTime * turnSpeed;
+        return characterAngle;
+    }
+
+    internal static bool ShouldPauseTime(bool inBoard, bool pauseMenu) 
+    {
+        return inBoard | pauseMenu;
+    }
+
+    internal static bool ClueMatchesPage(string bookClueName, string clueName) 
+    {
+        return (bookClueName == "Weapon" && clueName == "shovel") || (bookClueName == "Wool" && clueName == "Wool") || (bookClueName == "Location" && clueName == "bodytape");
     }
 }

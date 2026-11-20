@@ -48,6 +48,11 @@ public class SelectImages : MonoBehaviour {
         }
         return prevIndex;
     }
+
+    internal void SetClues(List<Texture2D> clues) 
+    {
+        possibleClues = clues;
+    }
     
     // Update is called once per frame
     void Update()
