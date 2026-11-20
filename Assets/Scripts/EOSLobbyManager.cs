@@ -31,6 +31,9 @@ public class EOSLobbyManager : MonoBehaviour
     private string currentLobbyId;
     private bool isHost;
     private bool deviceIdRetried;
+    private bool isJoiningLobby;
+    private bool isInLobby;
+    private bool userCreated;
 
     public bool IsLoggedIn => localUserId != null && localUserId.IsValid();
 
@@ -106,20 +109,9 @@ public class EOSLobbyManager : MonoBehaviour
 
     private void ConnectLogin(ConnectInterface connect)
     {
-        LoginOptions options = new()
-        {
-            Credentials = new Credentials
-            {
-                Type = ExternalCredentialType.DeviceidAccessToken,
-                Token = null
-            },
-            UserLoginInfo = new UserLoginInfo
-            {
-                DisplayName = $"Player_{Random.Range(1000, 9999)}"
-            }
-        };
-
-        connect.Login(ref options, null, (ref LoginCallbackInfo info) =>
+        // Log in via EOSManager (not connect.Login) so the plugin registers the user.
+        // The PurrNet EOSTransport only reads packets when HasLoggedInWithConnect() is true.
+        EOSManager.Instance.StartConnectLoginWithDeviceToken($"Player_{Random.Range(1000, 9999)}", info =>
         {
             switch (info.ResultCode)
             {
@@ -127,8 +119,8 @@ public class EOSLobbyManager : MonoBehaviour
                     OnLoggedIn(info.LocalUserId);
                     break;
 
-                case Result.InvalidUser when info.ContinuanceToken != null:
-                    CreateUser(connect, info.ContinuanceToken);
+                case Result.InvalidUser when info.ContinuanceToken != null && !userCreated:
+                    CreateUser(connect, info.ContinuanceToken);   // first launch on this device
                     break;
 
                 case Result.NotFound when !deviceIdRetried:
@@ -142,6 +134,20 @@ public class EOSLobbyManager : MonoBehaviour
         });
     }
 
+    private void CreateUser(ConnectInterface connect, ContinuanceToken token)
+    {
+        userCreated = true;
+        CreateUserOptions options = new() { ContinuanceToken = token };
+
+        connect.CreateUser(ref options, null, (ref CreateUserCallbackInfo info) =>
+        {
+            if (info.ResultCode == Result.Success)
+                ConnectLogin(connect);   // log in again through EOSManager
+            else
+                Debug.LogError($"[EOS] CreateUser failed: {info.ResultCode}");
+        });
+    }
+
     private void ResetDeviceId(ConnectInterface connect)
     {
         deviceIdRetried = true;
@@ -151,23 +157,11 @@ public class EOSLobbyManager : MonoBehaviour
         connect.DeleteDeviceId(ref options, null, (ref DeleteDeviceIdCallbackInfo _) => CreateDeviceId(connect));
     }
 
-    private void CreateUser(ConnectInterface connect, ContinuanceToken token)
-    {
-        CreateUserOptions options = new() { ContinuanceToken = token };
-
-        connect.CreateUser(ref options, null, (ref CreateUserCallbackInfo info) =>
-        {
-            if (info.ResultCode == Result.Success)
-                OnLoggedIn(info.LocalUserId);
-            else
-                Debug.LogError($"[EOS] CreateUser failed: {info.ResultCode}");
-        });
-    }
-
     private void OnLoggedIn(ProductUserId userId)
     {
         localUserId = userId;
         Debug.Log($"[EOS] Logged in: {localUserId}");
+        Debug.Log($"HasLoggedInWithConnect = {EOSManager.Instance.HasLoggedInWithConnect()}");
         RefreshLobbies();
     }
 
@@ -279,26 +273,30 @@ public class EOSLobbyManager : MonoBehaviour
         networkManager.onServerConnectionState -= OnServerConnectionState;
         networkManager.onServerConnectionState += OnServerConnectionState;
 
+        Debug.Log("[HOST] Calling StartHost()");
         networkManager.StartHost();
     }
 
     private void OnServerConnectionState(ConnectionState state)
     {
-        // Ignore intermediate states like 'Connecting'
+        Debug.Log($"[HOST] Server state: {state}");
+
         if (state == ConnectionState.Connecting)
             return;
 
-        // Unsubscribe on ANY final state (Connected or Disconnected) to prevent leaks
         networkManager.onServerConnectionState -= OnServerConnectionState;
         isStartingHost = false;
 
         if (state == ConnectionState.Connected)
         {
+            Debug.Log("[HOST] Server is running!");
+            Debug.Log($"[HOST] Loading scene: {gameSceneName}");
+
             networkManager.sceneModule.LoadSceneAsync(gameSceneName);
         }
         else
         {
-            Debug.LogError($"[EOS] Failed to start host. Connection state: {state}");
+            Debug.LogError($"[HOST] Server stopped: {state}");
         }
     }
 
@@ -394,6 +392,14 @@ public class EOSLobbyManager : MonoBehaviour
         if (!IsLoggedIn)
             return;
 
+        if (isJoiningLobby || isInLobby)
+        {
+            Debug.LogWarning("[EOS] Already joining or in a lobby!");
+            return;
+        }
+
+        isJoiningLobby = true;
+
         ResolveReferences();
 
         if (networkManager == null || eosTransport == null)
@@ -446,10 +452,37 @@ public class EOSLobbyManager : MonoBehaviour
 
                 currentLobbyId = lobbyId;
                 isHost = false;
+                isInLobby = true;
+                isJoiningLobby = false;
+
+                Debug.Log($"[EOS] Joined lobby: {lobbyId}");
+                Debug.Log($"[EOS] Host PUID: {hostPuid}");
+
                 eosTransport.remoteProductUserId = hostPuid;
+
+                // Listen for PurrNet connection status
+                networkManager.onClientConnectionState -= OnClientConnectionState;
+                networkManager.onClientConnectionState += OnClientConnectionState;
+
+                Debug.Log("[PurrNet] Starting client...");
+
                 networkManager.StartClient();
             });
         });
+    }
+
+    private void OnClientConnectionState(ConnectionState state)
+    {
+        Debug.Log($"[PurrNet] Client state: {state}");
+
+        if (state == ConnectionState.Connected)
+        {
+            Debug.Log("[PurrNet] Successfully connected to host!");
+        }
+        else if (state == ConnectionState.Disconnected)
+        {
+            Debug.LogError("[PurrNet] Client disconnected!");
+        }
     }
 
     #endregion

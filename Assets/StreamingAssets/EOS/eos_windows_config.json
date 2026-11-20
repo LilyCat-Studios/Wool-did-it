@@ -11,7 +11,7 @@
     "EncryptionKey": "276F0F319CEFFD1CA8154B4E28B8A0E3344B28158B94C75A44D2EDDFB4A60C6A"
   },
   "isServer": false,
-  "platformOptionsFlags": "None",
+  "platformOptionsFlags": "DisableOverlay",
   "authScopeOptionsFlags": "NoFlags",
   "integratedPlatformManagementFlags": 0,
   "tickBudgetInMilliseconds": 0,
