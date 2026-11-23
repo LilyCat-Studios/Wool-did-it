@@ -22,7 +22,7 @@ public class PlayerPoints : MonoBehaviour
         get
         {
             string safeId = Convert.ToBase64String(
-                Encoding.UTF8.GetBytes(playerId))
+                Encoding.UTF8.GetBytes(_playerId))
                 .TrimEnd('=')
                 .Replace('+', '-')
                 .Replace('/', '_');
