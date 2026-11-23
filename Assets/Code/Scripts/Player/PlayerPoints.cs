@@ -1,8 +1,9 @@
-
 using System;
 using System.IO;
 using System.Text;
 using UnityEngine;
+
+// this is a script for managing player points and should be added to the player prefab
 
 public class PlayerPoints : MonoBehaviour
 {
@@ -10,13 +11,13 @@ public class PlayerPoints : MonoBehaviour
     
     public event Action<int> OnPointsChanged;
     
-    
     private const int MinPoints = 0;
-    private const int MaxPoints = 9999;
+    private const int MaxPoints = 10000;
 
     private string _playerId;
     private bool _isInitialized;
 
+    // returns the path to the save file for the player's points
     private string SavePath
     {
         get
@@ -39,6 +40,7 @@ public class PlayerPoints : MonoBehaviour
         public int Points;
     }
     
+    // initializes the player's points system with the given player ID
     public void Initialize(string id)
     {
         if (string.IsNullOrWhiteSpace(id))
@@ -55,6 +57,7 @@ public class PlayerPoints : MonoBehaviour
         OnPointsChanged?.Invoke(CurrentPoints);
     }
 
+    // tries to add "pointsToAdd" to the player's current points, returns true if successful
     public bool TryAddPoints(int pointsToAdd)
     {
         if (!_isInitialized || pointsToAdd <= 0)
@@ -76,6 +79,7 @@ public class PlayerPoints : MonoBehaviour
         return true;
     }
 
+    // tries to spend "pointsToSpend" from the player's current points, returns true if successful
     public bool TrySpendPoints(int pointsToSpend)
     {
         if (!_isInitialized || pointsToSpend <= 0)
@@ -97,6 +101,7 @@ public class PlayerPoints : MonoBehaviour
         return true;
     }
 
+    // saves the player's current points to the save file, returns true if successful
     private bool SavePoints()
     {
         PointSaveData data = new PointSaveData
@@ -118,6 +123,7 @@ public class PlayerPoints : MonoBehaviour
         }
     }
 
+    // loads the player's current points from the save file
     private void LoadPoints()
     {
         if (!File.Exists(SavePath))
