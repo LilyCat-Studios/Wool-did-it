@@ -10,10 +10,10 @@ using PurrNet;
 public class SheepController : NetworkBehaviour
 {
     [Header("References")]
-    [SerializeField] private Transform carryPoint;
+    [SerializeField] private Transform _carryPoint;
 
     [Header("Validation")]
-    [SerializeField] private float maxInteractDistance = 3.5f;
+    [SerializeField] private float _maxInteractDistance = 3.5f;
 
     // Owner writes directly (ownerAuth); value syncs to everyone.
     [SerializeField] private SyncVar<SheepData> _sheepData = new(SheepData.Default, ownerAuth: true);
@@ -145,7 +145,7 @@ public class SheepController : NetworkBehaviour
         if (_attached == newClue) return;
 
         if (_attached != null) _attached.SetHeld(null);   // drop the old one first
-        if (newClue != null) newClue.SetHeld(carryPoint);
+        if (newClue != null) newClue.SetHeld(_carryPoint);
         _attached = newClue;
 
         OnCarriedChanged?.Invoke(newClue);
@@ -171,5 +171,5 @@ public class SheepController : NetworkBehaviour
     #endregion
 
     private bool InRange(Vector3 pos) =>
-        (transform.position - pos).sqrMagnitude <= maxInteractDistance * maxInteractDistance;
+        (transform.position - pos).sqrMagnitude <= _maxInteractDistance * _maxInteractDistance;
 }
