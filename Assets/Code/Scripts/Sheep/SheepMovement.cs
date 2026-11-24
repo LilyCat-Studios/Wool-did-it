@@ -117,40 +117,26 @@ public class SheepMovement : NetworkBehaviour
     {
         if (!_inputReady) return;
 
-        // Zero input while a menu is open; gravity and deceleration still run.
-        Vector2 input = InputEnabled
-            ? Vector2.ClampMagnitude(_move.ReadValue<Vector2>(), 1f)
-            : Vector2.zero;
+        Vector2 input = _move.ReadValue<Vector2>();
+        bool sprintPressed = _sprint.IsPressed();
+        bool jumpPressed = _jump.WasPressedThisFrame();
 
-        // Sprint only counts while moving forward.
-        IsSprinting = InputEnabled && input.y > 0.1f && _sprint.IsPressed();
-        float speed = _walkSpeed * (IsSprinting ? _sprintMultiplier : 1f);
-        // Camera-relative directions, flattened to the ground plane.
-        Vector3 camForward = Flatten(_cam != null ? _cam.forward : transform.forward);
-        Vector3 camRight = Flatten(_cam != null ? _cam.right : transform.right);
-        Vector3 target = (camForward * input.y + camRight * input.x) * speed;
+        Vector3 camForward = _cam != null ? _cam.forward : transform.forward;
+        Vector3 camRight = _cam != null ? _cam.right : transform.right;
 
+        Vector3 target = CalculateTargetVelocity(input, sprintPressed, camForward, camRight);
         _velocity = Vector3.MoveTowards(_velocity, target, _acceleration * dt);
 
-        // Face the camera direction (strafe style), so the animation values make sense.
-        if (camForward.sqrMagnitude > 0.001f)
+        Vector3 flatForward = Flatten(camForward);
+        if (flatForward.sqrMagnitude > 0.001f)
         {
             transform.rotation = Quaternion.RotateTowards(
-                transform.rotation, Quaternion.LookRotation(camForward), _turnSpeed * dt);
+                transform.rotation, Quaternion.LookRotation(flatForward), _turnSpeed * dt);
         }
 
-        // Gravity and jump.
-        bool grounded = _controller.isGrounded;
-        if (grounded && _verticalVelocity < 0f)
-            _verticalVelocity = _groundStick;
-
-        if (grounded && InputEnabled && _jump.WasPressedThisFrame())
-            _verticalVelocity = Mathf.Sqrt(_jumpHeight * -2f * _gravity);
-
-        _verticalVelocity += _gravity * dt;
+        _verticalVelocity = CalculateVerticalVelocity(_verticalVelocity, _controller.isGrounded, jumpPressed, dt);
 
         _controller.Move(new Vector3(_velocity.x, _verticalVelocity, _velocity.z) * dt);
-
         IsGrounded = _controller.isGrounded;
         UpdateAnimationValues(_velocity, _verticalVelocity);
     }
@@ -193,4 +179,35 @@ public class SheepMovement : NetworkBehaviour
         v.y = 0f;
         return v.normalized;
     }
+
+        internal void InitializeForTest(Vector3 initialPosition)
+    {
+        _lastPosition = initialPosition;
+        _active = true;
+    }
+
+    internal void SimulateRemoteStep(float dt) => RemoteUpdate(dt);
+
+    internal Vector3 CalculateTargetVelocity(Vector2 input, bool sprintPressed, Vector3 camForward, Vector3 camRight)
+    {
+        Vector2 clampedInput = InputEnabled ? Vector2.ClampMagnitude(input, 1f) : Vector2.zero;
+        IsSprinting = InputEnabled && clampedInput.y > 0.1f && sprintPressed;
+        float speed = _walkSpeed * (IsSprinting ? _sprintMultiplier : 1f);
+
+        return (Flatten(camForward) * clampedInput.y + Flatten(camRight) * clampedInput.x) * speed;
+    }
+
+    internal float CalculateVerticalVelocity(float currentVertical, bool isGrounded, bool jumpPressed, float dt)
+    {
+        if (isGrounded && currentVertical < 0f)
+            currentVertical = _groundStick;
+
+        if (isGrounded && InputEnabled && jumpPressed)
+            currentVertical = Mathf.Sqrt(_jumpHeight * -2f * _gravity);
+
+        return currentVertical + (_gravity * dt);
+    }
+
+    internal void UpdateAnimationValuesInternal(Vector3 worldVelocity, float vertical)
+        => UpdateAnimationValues(worldVelocity, vertical);
 }
