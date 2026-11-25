@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7101772545076188081
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3852449879200452771}
+  m_Layer: 0
+  m_Name: EggSpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3852449879200452771
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7101772545076188081}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6181513706736115138}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &9040162817730148892
 GameObject:
   m_ObjectHideFlags: 0
@@ -14,6 +45,8 @@ GameObject:
   - component: {fileID: 7082535775409188503}
   - component: {fileID: -9160140992818250700}
   - component: {fileID: -4008583839086838540}
+  - component: {fileID: 2238533139847218784}
+  - component: {fileID: 401905814128674814}
   m_Layer: 0
   m_Name: Chicken
   m_TagString: Untagged
@@ -30,10 +63,11 @@ Transform:
   m_GameObject: {fileID: 9040162817730148892}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.95, y: 0.25, z: 0.12}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
-  m_ConstrainProportionsScale: 1
-  m_Children: []
+  m_LocalPosition: {x: -1.95, y: 0.5, z: 0.12}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 3852449879200452771}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &5618010252490412599
@@ -148,7 +182,46 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c86e9e07c78cd748bce55eddff573b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Game::ChickenAI
-  _player: {fileID: 6797350829372862991, guid: 5fa74de26bc95b64e98af6904a1d7aab, type: 3}
+  _player: {fileID: 0}
   _agent: {fileID: -9160140992818250700}
+  _roamingCenter: {fileID: 0}
+  _renderer: {fileID: 4056597414604042205}
   _detectionRange: 5
-  _fleeDistance: 8
+  _fleeDistance: 10
+  _fleeExitRange: 9
+  _roamingRadius: 15
+  _sampleRadius: 3
+  _chickenAttack: {fileID: 401905814128674814}
+  _roamingStartDelay: 5
+--- !u!114 &2238533139847218784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9040162817730148892}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04e1b046b34bce648a8d31023d7aaa96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game::ChickenEggSpawner
+  _eggPrefab: {fileID: 7423410203211365470, guid: 74fe61db2a240d442a79e4310e0b5c63, type: 3}
+  _eggSpawnPoint: {fileID: 3852449879200452771}
+  _eggManager: {fileID: 0}
+  _eggSpawnInterval: 20
+--- !u!114 &401905814128674814
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9040162817730148892}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9f4563c2e4d6674d99c6fb40cffb64f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game::ChickenAttack
+  _agent: {fileID: -9160140992818250700}
+  _attackDuration: 5
+  _attackRange: 1.5
+  _peckInterval: 1
