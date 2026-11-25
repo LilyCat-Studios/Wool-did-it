@@ -19,18 +19,18 @@ public class SheepController : NetworkBehaviour
     [SerializeField] private SyncVar<SheepData> _sheepData = new(SheepData.Default, ownerAuth: true);
 
     // Server-authoritative: the clue currently carried (null if none).
-    [SerializeField] private SyncVar<ClueItem> _carried = new();
+    [SerializeField] private SyncVar<Clue> _carried = new();
 
     // Only ever filled on the owning client (via TargetRpc).
     private readonly HashSet<int> _clues = new();
-    private ClueItem _attached;
+    private Clue _attached;
 
     public event Action<int> OnClueCollected;          // owner only
-    public event Action<ClueItem> OnCarriedChanged;    // everyone
+    public event Action<Clue> OnCarriedChanged;    // everyone
     public event Action<SheepData> OnSheepDataChanged; // everyone
 
     public IReadOnlyCollection<int> ClueIds => _clues;
-    public ClueItem Carried => _carried.value;
+    public Clue Carried => _carried.value;
     public SheepData Data => _sheepData.value;
 
     protected override void OnSpawned(bool asServer)
@@ -68,21 +68,21 @@ public class SheepController : NetworkBehaviour
 
     public bool HasClue(int clueId) => _clues.Contains(clueId);
 
-    // Called by your interaction script on the owner's client.
-    public void RequestPickupClue(ClueItem clue)
+    // Called the interaction script on the owner's client.
+    public void RequestPickupClue(Clue clue)
     {
         if (isOwner && clue != null && clue.Data.isMovable)
             PickupClueServer(clue);
     }
 
-    public void RequestDestroyClue(ClueItem clue)
+    public void RequestDestroyClue(Clue clue)
     {
         if (isOwner && clue != null && clue.Data.canBeDestroyed)
             DestroyClueServer(clue);
     }
 
     // For clues that are neither movable nor destroyable.
-    public void RequestCheckClue(ClueItem clue)
+    public void RequestCheckClue(Clue clue)
     {
         if (isOwner && clue != null)
             CheckClueServer(clue);
@@ -95,7 +95,7 @@ public class SheepController : NetworkBehaviour
     }
 
     [ServerRpc(requireOwnership: true)]
-    private void PickupClueServer(ClueItem clue)
+    private void PickupClueServer(Clue clue)
     {
         if (!CanInteract(clue) || !clue.Data.isMovable || clue.IsHeld) return;
 
@@ -105,7 +105,7 @@ public class SheepController : NetworkBehaviour
     }
 
     [ServerRpc(requireOwnership: true)]
-    private void DestroyClueServer(ClueItem clue)
+    private void DestroyClueServer(Clue clue)
     {
         if (!CanInteract(clue) || !clue.Data.canBeDestroyed || clue.IsHeld) return;
 
@@ -114,7 +114,7 @@ public class SheepController : NetworkBehaviour
     }
 
     [ServerRpc(requireOwnership: true)]
-    private void CheckClueServer(ClueItem clue)
+    private void CheckClueServer(Clue clue)
     {
         if (CanInteract(clue))
             Collect(clue);
@@ -124,13 +124,13 @@ public class SheepController : NetworkBehaviour
     private void DropClueServer() => _carried.value = null;
 
     // Records the first finder and adds the clue to this player's list.
-    private void Collect(ClueItem clue)
+    private void Collect(Clue clue)
     {
         clue.Check(owner.Value);
         GiveClueTarget(owner.Value, clue.ClueId);
     }
 
-    private bool CanInteract(ClueItem clue) =>
+    private bool CanInteract(Clue clue) =>
         clue != null && owner.HasValue && InRange(clue.transform.position);
 
     [TargetRpc]
@@ -140,7 +140,7 @@ public class SheepController : NetworkBehaviour
             OnClueCollected?.Invoke(clueId);
     }
 
-    private void HandleCarriedChanged(ClueItem newClue)
+    private void HandleCarriedChanged(Clue newClue)
     {
         if (_attached == newClue) return;
 
