@@ -12,6 +12,8 @@ public class ChickenAttack : MonoBehaviour
     [SerializeField] private float _attackRange = 1.5f;
     [SerializeField] private float _peckInterval = 1f;
 
+    public bool IsAttacking => _isAttacking;
+    
     private Transform _target;
 
     private float _attackTimer;
@@ -26,8 +28,11 @@ public class ChickenAttack : MonoBehaviour
         _peckTimer = 0f;
         _isAttacking = true;
 
-        _agent.isStopped = false;
-        _agent.ResetPath();
+        if (_agent != null && _agent.isOnNavMesh)
+        {
+            _agent.isStopped = false;
+            _agent.ResetPath();
+        }
     }
 
     public bool HandleAttack()

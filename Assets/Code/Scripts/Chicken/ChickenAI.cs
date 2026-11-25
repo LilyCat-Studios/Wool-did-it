@@ -25,18 +25,19 @@ public class ChickenAI : MonoBehaviour
     [Header("Timers")]
     [SerializeField] private float _roamingStartDelay = 5f;
 
+    public ChickenState CurrentState => _currentState;
+    
     private float _roamingTimer;
     
-    private enum ChickenState
+    private ChickenState _currentState = ChickenState.Idle;
+    
+    public enum ChickenState
     {
         Idle,
         Roaming,
         Fleeing,
         Angry
     }
-    
-    private ChickenState _currentState = ChickenState.Idle;
-
     public void BecomeAngry()
     {
         if (_currentState == ChickenState.Angry)
@@ -53,24 +54,15 @@ public class ChickenAI : MonoBehaviour
         switch (_currentState)
         {
             case ChickenState.Idle:
-                Color orange = Color.Lerp(Color.white, Color.orange, 0.5f);
-                _renderer.material.color = orange;
                 HandleIdle();
                 break;
             case ChickenState.Roaming:
-                Color green = Color.Lerp(Color.white, Color.green, 0.5f);
-                _renderer.material.color = green;
                 HandleRoaming();
                 break;
             case ChickenState.Fleeing:
-                Color blue = Color.Lerp(Color.white, Color.blue, 0.5f);
-                _renderer.material.color = blue;
                 HandleFleeing();
                 break;
-
             case ChickenState.Angry:
-                Color red = Color.Lerp(Color.white, Color.red, 0.5f);
-                _renderer.material.color = red;
                 HandleAngry();
                 break;
         }
@@ -83,7 +75,8 @@ public class ChickenAI : MonoBehaviour
 
         _currentState = newState;
 
-        _agent.ResetPath();
+        if (_agent && _agent.isOnNavMesh)
+            _agent.ResetPath();
     }
     
     private void HandleIdle()
