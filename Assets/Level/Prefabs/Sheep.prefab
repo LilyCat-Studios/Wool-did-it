@@ -42,7 +42,6 @@ GameObject:
   - component: {fileID: 2940209015763496357}
   - component: {fileID: 6851395265431172084}
   - component: {fileID: 6241418005696852264}
-  - component: {fileID: 7167030841789442522}
   - component: {fileID: 7078875663739738952}
   - component: {fileID: 1437350269766067804}
   m_Layer: 0
@@ -126,29 +125,6 @@ MonoBehaviour:
   _ownerAuth: 1
   _interpolationTiming: 0
   _adaptiveSynchronization: 2
---- !u!114 &7167030841789442522
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6693415516059634508}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f59991512225b8141ba2863cb2159524, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
-  _isSetup: 0
-  _prefabId: -2147483648
-  _hasPrefabScope: 0
-  _prefabScope: 0
-  _componentIndex: -2147483648
-  _shouldBePooled: 0
-  _parent: {fileID: 0}
-  _invertedPathToNearestParent: 
-  _directChildren: []
 --- !u!114 &7078875663739738952
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -172,17 +148,17 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  inputActions: {fileID: -944628639613478452, guid: e2f7c4d3825a40c46a16ad813b6c020a, type: 3}
-  mapName: Player
-  cameraTarget: {fileID: 8499767458246678519}
-  walkSpeed: 3
-  sprintMultiplier: 1.8
-  acceleration: 20
-  turnSpeed: 720
-  jumpHeight: 1.2
-  gravity: -20
-  remoteSmoothing: 10
-  teleportDistance: 3
+  _inputActions: {fileID: -944628639613478452, guid: e2f7c4d3825a40c46a16ad813b6c020a, type: 3}
+  _mapName: Player
+  _cameraTarget: {fileID: 8499767458246678519}
+  _walkSpeed: 3
+  _sprintMultiplier: 1.8
+  _acceleration: 20
+  _turnSpeed: 720
+  _jumpHeight: 1.2
+  _gravity: -20
+  _remoteSmoothing: 10
+  _teleportDistance: 3
 --- !u!143 &1437350269766067804
 CharacterController:
   m_ObjectHideFlags: 0
