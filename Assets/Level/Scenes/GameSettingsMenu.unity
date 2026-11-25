@@ -7410,6 +7410,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2110048571}
   - component: {fileID: 2110048572}
+  - component: {fileID: 2110048573}
   m_Layer: 5
   m_Name: VSyncToggle
   m_TagString: Untagged
@@ -7484,8 +7485,33 @@ MonoBehaviour:
   m_Group: {fileID: 0}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2110048573}
+        m_TargetAssemblyTypeName: VSyncSettings, Game
+        m_MethodName: SetVSync
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_IsOn: 1
+--- !u!114 &2110048573
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2110048570}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6a941fb06c64aaaa28c84bc015d1d96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game::VSyncSettings
+  vSyncToggle: {fileID: 2110048572}
 --- !u!1 &2118072307
 GameObject:
   m_ObjectHideFlags: 0
