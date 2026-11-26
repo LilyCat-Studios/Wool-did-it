@@ -21,6 +21,14 @@ public class ChickenAttack : MonoBehaviour
 
     private bool _isAttacking;
 
+    public void SetTarget(Transform target)
+    {
+        if (!_isAttacking)
+            return;
+
+        _target = target;
+    }
+    
     public void StartAttack(Transform target)
     {
         _target = target;

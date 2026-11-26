@@ -1,11 +1,9 @@
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.InputSystem;
 
 public class ChickenAI : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private Transform _player;
     [SerializeField] private NavMeshAgent _agent;
     [SerializeField] private Transform _roamingCenter;
     [SerializeField] private Renderer _renderer;
@@ -14,23 +12,26 @@ public class ChickenAI : MonoBehaviour
     [SerializeField] private float _detectionRange = 5f;
     [SerializeField] private float _fleeDistance = 8f;
     [SerializeField] private float _fleeExitRange = 7f;
-    
+
     [Header("Roaming")]
     [SerializeField] private float _roamingRadius = 8f;
     [SerializeField] private float _sampleRadius = 2f;
-    
+
     [Header("Attack")]
     [SerializeField] private ChickenAttack _chickenAttack;
-    
+
     [Header("Timers")]
     [SerializeField] private float _roamingStartDelay = 5f;
+    [SerializeField] private float _playerRefreshInterval = 1f;
 
     public ChickenState CurrentState => _currentState;
-    
+
+    private Transform[] _players;
     private float _roamingTimer;
-    
+    private float _playerRefreshTimer;
+
     private ChickenState _currentState = ChickenState.Idle;
-    
+
     public enum ChickenState
     {
         Idle,
@@ -38,36 +39,53 @@ public class ChickenAI : MonoBehaviour
         Fleeing,
         Angry
     }
-    public void BecomeAngry()
+
+    public void BecomeAngry(Transform target)
     {
-        if (_currentState == ChickenState.Angry)
+        if (!target)
             return;
 
+        if (_currentState == ChickenState.Angry)
+        {
+            _chickenAttack.SetTarget(target);
+            return;
+        }
+
         ChangeState(ChickenState.Angry);
-        _chickenAttack.StartAttack(_player);
+        _chickenAttack.StartAttack(target);
     }
-    
+
+    private void Start()
+    {
+        RefreshPlayers();
+    }
+
     private void Update()
     {
+        UpdatePlayers();
+
         CheckForPlayer();
-        
+
         switch (_currentState)
         {
             case ChickenState.Idle:
                 HandleIdle();
                 break;
+
             case ChickenState.Roaming:
                 HandleRoaming();
                 break;
+
             case ChickenState.Fleeing:
                 HandleFleeing();
                 break;
+
             case ChickenState.Angry:
                 HandleAngry();
                 break;
         }
     }
-    
+
     private void ChangeState(ChickenState newState)
     {
         if (_currentState == newState)
@@ -78,17 +96,15 @@ public class ChickenAI : MonoBehaviour
         if (_agent && _agent.isOnNavMesh)
             _agent.ResetPath();
     }
-    
+
     private void HandleIdle()
     {
         _roamingTimer += Time.deltaTime;
 
         if (_roamingTimer >= _roamingStartDelay)
-        {
             ChangeState(ChickenState.Roaming);
-        }
     }
-    
+
     private void HandleRoaming()
     {
         if (_agent.pathPending)
@@ -112,7 +128,7 @@ public class ChickenAI : MonoBehaviour
 
         SetFleeDestination();
     }
-    
+
     private void HandleAngry()
     {
         bool attackFinished = _chickenAttack.HandleAttack();
@@ -122,7 +138,7 @@ public class ChickenAI : MonoBehaviour
             ChangeState(ChickenState.Roaming);
         }
     }
-    
+
     private void SetRandomDestination()
     {
         Vector2 randomPosition = Random.insideUnitCircle * _roamingRadius;
@@ -139,18 +155,21 @@ public class ChickenAI : MonoBehaviour
             _agent.SetDestination(hit.position);
         }
     }
-    
+
     private void CheckForPlayer()
     {
-        if (!_player)
+        if (_currentState == ChickenState.Angry ||
+            _currentState == ChickenState.Idle)
             return;
-        
-        if (_currentState == ChickenState.Angry || _currentState == ChickenState.Idle)
+
+        Transform closestPlayer = GetClosestPlayer();
+
+        if (!closestPlayer)
             return;
 
         float distanceToPlayer = Vector3.Distance(
             transform.position,
-            _player.position
+            closestPlayer.position
         );
 
         if (_currentState != ChickenState.Fleeing &&
@@ -167,9 +186,16 @@ public class ChickenAI : MonoBehaviour
 
     private void SetFleeDestination()
     {
-        Vector3 fleeDirection = (transform.position - _player.position).normalized;
+        Transform closestPlayer = GetClosestPlayer();
 
-        Vector3 targetPosition = transform.position + fleeDirection * _fleeDistance;
+        if (!closestPlayer)
+            return;
+
+        Vector3 fleeDirection =
+            (transform.position - closestPlayer.position).normalized;
+
+        Vector3 targetPosition =
+            transform.position + fleeDirection * _fleeDistance;
 
         if (NavMesh.SamplePosition(
                 targetPosition,
@@ -177,13 +203,62 @@ public class ChickenAI : MonoBehaviour
                 _sampleRadius,
                 NavMesh.AllAreas))
         {
-            bool destinationSet = _agent.SetDestination(hit.position);
-
-            Debug.Log($"Flee destination set: {destinationSet}");
+            _agent.SetDestination(hit.position);
         }
         else
         {
             Debug.LogWarning("Could not find a valid flee destination!");
         }
+    }
+
+    private void UpdatePlayers()
+    {
+        _playerRefreshTimer += Time.deltaTime;
+
+        if (_playerRefreshTimer >= _playerRefreshInterval)
+        {
+            _playerRefreshTimer = 0f;
+            RefreshPlayers();
+        }
+    }
+
+    private void RefreshPlayers()
+    {
+        GameObject[] playerObjects = GameObject.FindGameObjectsWithTag("Player");
+
+        _players = new Transform[playerObjects.Length];
+
+        for (int i = 0; i < playerObjects.Length; i++)
+        {
+            _players[i] = playerObjects[i].transform;
+        }
+    }
+
+    private Transform GetClosestPlayer()
+    {
+        Transform closestPlayer = null;
+        float closestDistance = Mathf.Infinity;
+
+        if (_players == null)
+            return null;
+
+        foreach (Transform player in _players)
+        {
+            if (!player)
+                continue;
+
+            float distance = Vector3.Distance(
+                transform.position,
+                player.position
+            );
+
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestPlayer = player;
+            }
+        }
+
+        return closestPlayer;
     }
 }

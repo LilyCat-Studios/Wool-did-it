@@ -19,8 +19,11 @@ public class EggManager : MonoBehaviour
         Debug.Log($"Active eggs: {_activeEggCount} | Total laid: {_totalEggCount}");
     }
 
-    public void HandleEggStepped(Vector3 eggPosition)
+    public void HandleEggStepped(Vector3 eggPosition, Transform player)
     {
+        if (!player)
+            return;
+
         if (_activeEggCount > 0)
             _activeEggCount--;
 
@@ -37,7 +40,7 @@ public class EggManager : MonoBehaviour
 
             if (distance <= _angerRadius)
             {
-                chicken.BecomeAngry();
+                chicken.BecomeAngry(player);
             }
         }
     }

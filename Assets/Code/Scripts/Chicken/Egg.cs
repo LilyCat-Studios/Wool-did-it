@@ -26,7 +26,10 @@ public class Egg : MonoBehaviour
 
         _hasBeenTriggered = true;
 
-        _eggManager.HandleEggStepped(transform.position);
+        _eggManager.HandleEggStepped(
+            transform.position,
+            other.transform
+        );
 
         Destroy(gameObject);
     }
