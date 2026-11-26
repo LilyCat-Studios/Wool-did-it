@@ -48,9 +48,11 @@ public class ChickenAttack : MonoBehaviour
             return true;
         }
 
-        if (_target == null)
+        if (!_target)
         {
-            _agent.isStopped = true;
+            if (_agent && _agent.isOnNavMesh)
+                _agent.isStopped = true;
+
             return false;
         }
 
@@ -63,13 +65,19 @@ public class ChickenAttack : MonoBehaviour
 
         if (distanceToTarget > _attackRange)
         {
-            _agent.isStopped = false;
-            _agent.SetDestination(_target.position);
+            if (_agent && _agent.isOnNavMesh)
+            {
+                _agent.isStopped = false;
+                _agent.SetDestination(_target.position);
+            }
         }
         else
         {
-            _agent.isStopped = true;
-            _agent.ResetPath();
+            if (_agent && _agent.isOnNavMesh)
+            {
+                _agent.isStopped = true;
+                _agent.ResetPath();
+            }
 
             HandlePecking();
         }
@@ -77,13 +85,17 @@ public class ChickenAttack : MonoBehaviour
         return false;
     }
 
+
     private void StopAttack()
     {
         _isAttacking = false;
         _target = null;
 
-        _agent.isStopped = false;
-        _agent.ResetPath();
+        if (_agent && _agent.isOnNavMesh)
+        {
+            _agent.isStopped = false;
+            _agent.ResetPath();
+        }
     }
 
     private void FaceTarget()
