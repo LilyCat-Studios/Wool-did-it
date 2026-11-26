@@ -5,86 +5,104 @@ using UnityEngine.InputSystem;
 
 /// <summary>
 /// Owner-authoritative third-person movement for a p2p setup.
-/// The owner simulates and NetworkTransform syncs the result. Remote copies
-/// derive their animation values from the synced motion, so this script
-/// sends no network traffic of its own.
+/// NetworkTransform syncs the Position.
+/// Remote copies derive their animation values from the synced motion.
 /// </summary>
 [RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(PlayerInput))]
 public class SheepMovement : NetworkBehaviour
 {
-    [Header("Input")]
-    [SerializeField] private InputActionAsset _inputActions;
-    [SerializeField] private string _mapName = "Player";
-
     [Header("Camera")]
-    [SerializeField] private Transform _cameraTarget; // empty child at head height
+    [Tooltip("Empty child transform at head height used as the Cinemachine tracking target.")]
+    [SerializeField] private Transform _cameraTarget;
+
+    [Tooltip("speed for turning toward the camera yaw. Higher values turn faster.")]
+    [SerializeField] private float _rotationSpeed = 20f;
 
     [Header("Movement")]
+    [Tooltip("Base horizontal movement speed.")]
     [SerializeField] private float _walkSpeed = 3f;
+
+    [Tooltip("Speed multiplier applied when sprinting forward.")]
     [SerializeField] private float _sprintMultiplier = 1.8f;
+
+    [Tooltip("Rate at which horizontal velocity accelerates or decelerates.")]
     [SerializeField] private float _acceleration = 20f;
-    [SerializeField] private float _turnSpeed = 720f; // degrees per second
 
     [Header("Jump / Gravity")]
+    [Tooltip("Maximum jump height.")]
     [SerializeField] private float _jumpHeight = 1.2f;
+
+    [Tooltip("Constant downward acceleration applied to the character.")]
     [SerializeField] private float _gravity = -20f;
 
     [Header("Remote Smoothing")]
+    [Tooltip("Rate at which remote clients smooth their estimated velocity and vertical position.")]
     [SerializeField] private float _remoteSmoothing = 10f;
-    [SerializeField] private float _teleportDistance = 3f; // ignore bigger jumps per frame
 
-    // Animation values. 1 = walk speed, _sprintMultiplier = sprint.
-    // Forward: +forward / -backward. Sid: +right / -left.
+    [Tooltip("Distance threshold for ignoring large position snaps (e.g., spawns or teleports) when estimating remote velocity.")]
+    [SerializeField] private float _teleportDistance = 3f;
+
+    // Normalized forward/backward speed for animator blend trees
     public float ForwardSpeed { get; private set; }
+
+    // Normalized right/left strafe speed for animator blend trees
     public float SideSpeed { get; private set; }
     public float VerticalSpeed { get; private set; }
     public bool IsSprinting { get; private set; }
     public bool IsGrounded { get; private set; }
 
-    /// <summary>Set false while a menu, notebook or map is open. Gravity still applies.</summary>
+    // Set to false when UI menus or overlays are open to block movement input while keeping gravity active
     public bool InputEnabled { get; set; } = true;
 
-    private const float _groundStick = -2f;
+    // Constant downward force applied while grounded to keep the character attached to the ground.
+    private const float GroundStick = -2f;
 
     private CharacterController _controller;
-    private InputAction _move, _sprint, _jump;
+    private PlayerInput _playerInput;
     private Transform _cam;
+    private CinemachineOrbitalFollow _orbitalFollow;
 
-    private Vector3 _velocity;          // horizontal, world space
+    // Cached input values populated by PlayerInput SendMessages callbacks.
+    private Vector2 _moveInput;
+    private bool _sprintHeld;
+    private bool _jumpPressed;
+
+    private Vector3 _velocity;
     private float _verticalVelocity;
-    private Vector3 _lastPosition;      // remote copies only
-    private bool _active;               // true between spawn and despawn
-    private bool _inputReady;
+    private Vector3 _lastPosition;
+    private bool _active;
+    private bool _ownerInitialised;
 
-    private void Awake() => _controller = GetComponent<CharacterController>();
+    private void Awake()
+    {
+        _controller = GetComponent<CharacterController>();
+        _playerInput = GetComponent<PlayerInput>();
+    }
 
     protected override void OnSpawned(bool asServer)
     {
         base.OnSpawned(asServer);
 
-        // Only the owner simulates; NetworkTransform drives everyone else.
+        // Only the owning client simulates physics and reads local input devices.
         _controller.enabled = isOwner;
+        _playerInput.enabled = isOwner;
         _lastPosition = transform.position;
         _active = true;
 
-        // A host gets OnSpawned twice, so initialise the owner side once.
-        if (!isOwner || _inputReady) return;
+        if (!isOwner || _ownerInitialised) return;
+        _ownerInitialised = true;
 
-        InputActionMap map = _inputActions.FindActionMap(_mapName, true);
-        _move = map.FindAction("Move", true);
-        _sprint = map.FindAction("Sprint", true);
-        _jump = map.FindAction("Jump", true);
-        _move.Enable();
-        _sprint.Enable();
-        _jump.Enable();
-        _inputReady = true;
+        if (Camera.main != null)
+            _cam = Camera.main.transform;
 
-        Camera mainCam = Camera.main;
-        _cam = mainCam != null ? mainCam.transform : null;
-
+        // Bind the local Cinemachine camera to this player's tracking target.
         CinemachineCamera vcam = FindAnyObjectByType<CinemachineCamera>();
         if (vcam != null)
+        {
             vcam.Target.TrackingTarget = _cameraTarget != null ? _cameraTarget : transform;
+            _orbitalFollow = vcam.GetComponent<CinemachineOrbitalFollow>();
+        }
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -93,17 +111,13 @@ public class SheepMovement : NetworkBehaviour
     protected override void OnDespawned(bool asServer)
     {
         _active = false;
-
-        if (_inputReady)
-        {
-            _move.Disable();
-            _sprint.Disable();
-            _jump.Disable();
-            _inputReady = false;
-        }
-
         base.OnDespawned(asServer);
     }
+
+    // ---- PlayerInput Callbacks (Requires Behavior = Send Messages) ----
+    private void OnMove(InputValue value) => _moveInput = value.Get<Vector2>();
+    private void OnSprint(InputValue value) => _sprintHeld = value.isPressed;
+    private void OnJump(InputValue value) { if (value.isPressed) _jumpPressed = true; }
 
     private void Update()
     {
@@ -113,35 +127,42 @@ public class SheepMovement : NetworkBehaviour
         else RemoteUpdate(Time.deltaTime);
     }
 
+    // Owner-authoritative movement, rotation and gravity.
     private void OwnerUpdate(float dt)
     {
-        if (!_inputReady) return;
+        if (!_ownerInitialised || dt <= 0f) return;
 
-        Vector2 input = _move.ReadValue<Vector2>();
-        bool sprintPressed = _sprint.IsPressed();
-        bool jumpPressed = _jump.WasPressedThisFrame();
+        bool jumpPressed = _jumpPressed;
+        _jumpPressed = false;
 
         Vector3 camForward = _cam != null ? _cam.forward : transform.forward;
         Vector3 camRight = _cam != null ? _cam.right : transform.right;
 
-        Vector3 target = CalculateTargetVelocity(input, sprintPressed, camForward, camRight);
-        _velocity = Vector3.MoveTowards(_velocity, target, _acceleration * dt);
+        Vector3 targetVelocity = CalculateTargetVelocity(_moveInput, _sprintHeld, camForward, camRight);
+        _velocity = Vector3.MoveTowards(_velocity, targetVelocity, _acceleration * dt);
 
-        Vector3 flatForward = Flatten(camForward);
-        if (flatForward.sqrMagnitude > 0.001f)
-        {
-            transform.rotation = Quaternion.RotateTowards(
-                transform.rotation, Quaternion.LookRotation(flatForward), _turnSpeed * dt);
-        }
+        UpdateRotation(dt);
 
         _verticalVelocity = CalculateVerticalVelocity(_verticalVelocity, _controller.isGrounded, jumpPressed, dt);
-
         _controller.Move(new Vector3(_velocity.x, _verticalVelocity, _velocity.z) * dt);
+
         IsGrounded = _controller.isGrounded;
         UpdateAnimationValues(_velocity, _verticalVelocity);
     }
 
-    // Non-owners: measure the motion that NetworkTransform produced.
+    // Smoothly aligns character yaw with the orbital camera's horizontal axis.
+    private void UpdateRotation(float dt)
+    {
+        float targetYaw = _orbitalFollow != null
+            ? _orbitalFollow.HorizontalAxis.Value
+            : (_cam != null ? _cam.eulerAngles.y : transform.eulerAngles.y);
+
+        Quaternion targetRotation = Quaternion.Euler(0f, targetYaw, 0f);
+        float blend = 1f - Mathf.Exp(-_rotationSpeed * dt);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, blend);
+    }
+
+    // Estimates velocity and grounded state on non-owning clients from position changes.
     private void RemoteUpdate(float dt)
     {
         if (dt <= 0f) return;
@@ -149,7 +170,7 @@ public class SheepMovement : NetworkBehaviour
         Vector3 delta = transform.position - _lastPosition;
         _lastPosition = transform.position;
 
-        // Skip teleports (respawn, late-join snap) so animations don't spike.
+        // Ignore large position snaps (e.g., spawns or teleports)
         if (delta.sqrMagnitude > _teleportDistance * _teleportDistance) return;
 
         Vector3 measured = delta / dt;
@@ -158,9 +179,8 @@ public class SheepMovement : NetworkBehaviour
         _velocity = Vector3.Lerp(_velocity, new Vector3(measured.x, 0f, measured.z), blend);
         _verticalVelocity = Mathf.Lerp(_verticalVelocity, measured.y, blend);
 
-        // Halfway between walk and sprint speed.
-        float threshold = _walkSpeed * (1f + _sprintMultiplier) * 0.5f;
-        IsSprinting = _velocity.sqrMagnitude > threshold * threshold;
+        float sprintThreshold = _walkSpeed * (1f + _sprintMultiplier) * 0.5f;
+        IsSprinting = _velocity.sqrMagnitude > sprintThreshold * sprintThreshold;
         IsGrounded = Mathf.Abs(_verticalVelocity) < 0.5f;
 
         UpdateAnimationValues(_velocity, _verticalVelocity);
@@ -174,19 +194,12 @@ public class SheepMovement : NetworkBehaviour
         VerticalSpeed = vertical;
     }
 
+    // Projects a direction vector onto the horizontal XZ plane and normalizes it.
     private static Vector3 Flatten(Vector3 v)
     {
         v.y = 0f;
         return v.normalized;
     }
-
-        internal void InitializeForTest(Vector3 initialPosition)
-    {
-        _lastPosition = initialPosition;
-        _active = true;
-    }
-
-    internal void SimulateRemoteStep(float dt) => RemoteUpdate(dt);
 
     internal Vector3 CalculateTargetVelocity(Vector2 input, bool sprintPressed, Vector3 camForward, Vector3 camRight)
     {
@@ -200,7 +213,7 @@ public class SheepMovement : NetworkBehaviour
     internal float CalculateVerticalVelocity(float currentVertical, bool isGrounded, bool jumpPressed, float dt)
     {
         if (isGrounded && currentVertical < 0f)
-            currentVertical = _groundStick;
+            currentVertical = GroundStick;
 
         if (isGrounded && InputEnabled && jumpPressed)
             currentVertical = Mathf.Sqrt(_jumpHeight * -2f * _gravity);
@@ -208,6 +221,13 @@ public class SheepMovement : NetworkBehaviour
         return currentVertical + (_gravity * dt);
     }
 
-    internal void UpdateAnimationValuesInternal(Vector3 worldVelocity, float vertical)
-        => UpdateAnimationValues(worldVelocity, vertical);
+    // ---- Unit Test Helpers ----
+    internal void InitializeForTest(Vector3 initialPosition)
+    {
+        _lastPosition = initialPosition;
+        _active = true;
+    }
+
+    internal void SimulateRemoteStep(float dt) => RemoteUpdate(dt);
+    internal void UpdateAnimationValuesInternal(Vector3 worldVelocity, float vertical) => UpdateAnimationValues(worldVelocity, vertical);
 }

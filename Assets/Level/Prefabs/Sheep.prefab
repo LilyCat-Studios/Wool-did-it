@@ -42,8 +42,9 @@ GameObject:
   - component: {fileID: 2940209015763496357}
   - component: {fileID: 6851395265431172084}
   - component: {fileID: 6241418005696852264}
-  - component: {fileID: 7078875663739738952}
   - component: {fileID: 1437350269766067804}
+  - component: {fileID: 7925536262234261230}
+  - component: {fileID: 3440803816314268564}
   m_Layer: 0
   m_Name: Sheep
   m_TagString: Player
@@ -125,40 +126,6 @@ MonoBehaviour:
   _ownerAuth: 1
   _interpolationTiming: 0
   _adaptiveSynchronization: 2
---- !u!114 &7078875663739738952
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6693415516059634508}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0489e997202753e438c511ed4a703f6b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
-  _isSetup: 0
-  _prefabId: -2147483648
-  _hasPrefabScope: 0
-  _prefabScope: 0
-  _componentIndex: -2147483648
-  _shouldBePooled: 0
-  _parent: {fileID: 0}
-  _invertedPathToNearestParent: 
-  _directChildren: []
-  _inputActions: {fileID: -944628639613478452, guid: e2f7c4d3825a40c46a16ad813b6c020a, type: 3}
-  _mapName: Player
-  _cameraTarget: {fileID: 8499767458246678519}
-  _walkSpeed: 3
-  _sprintMultiplier: 1.8
-  _acceleration: 20
-  _turnSpeed: 720
-  _jumpHeight: 1.2
-  _gravity: -20
-  _remoteSmoothing: 10
-  _teleportDistance: 3
 --- !u!143 &1437350269766067804
 CharacterController:
   m_ObjectHideFlags: 0
@@ -184,6 +151,68 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7925536262234261230
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6693415516059634508}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
+  m_Actions: {fileID: -944628639613478452, guid: e2f7c4d3825a40c46a16ad813b6c020a, type: 3}
+  m_NotificationBehavior: 0
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents: []
+  m_NeverAutoSwitchControlSchemes: 0
+  m_DefaultControlScheme: 
+  m_DefaultActionMap: Player
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
+--- !u!114 &3440803816314268564
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6693415516059634508}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a462107b28f3742419cf6232f4ea20f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game::SheepMovement
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _isSetup: 0
+  _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _cameraTarget: {fileID: 0}
+  _walkSpeed: 3
+  _sprintMultiplier: 1.8
+  _acceleration: 20
+  _turnSpeed: 720
+  _jumpHeight: 1.2
+  _gravity: -20
+  _remoteSmoothing: 10
+  _teleportDistance: 3
 --- !u!1 &9125071037719191751
 GameObject:
   m_ObjectHideFlags: 0
