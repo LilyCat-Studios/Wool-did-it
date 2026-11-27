@@ -1,5 +1,4 @@
-﻿
-using System.Collections;
+﻿using System.Collections;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -49,17 +48,14 @@ public class EggPlayModeTests
     [UnityTest]
     public IEnumerator OnTriggerEnter_WhenPlayerTouchesEgg_DestroysEgg()
     {
-        // Arrange
         _eggManager.RegisterEgg();
 
-        // Act
         _playerObject.transform.position = Vector3.zero;
         Physics.SyncTransforms();
 
         yield return new WaitForFixedUpdate();
         yield return null;
 
-        // Assert
         Assert.That(_eggObject == null, Is.True);
         Assert.That(_eggManager.ActiveEggCount, Is.EqualTo(0));
     }
@@ -67,17 +63,14 @@ public class EggPlayModeTests
     [UnityTest]
     public IEnumerator OnTriggerEnter_WhenOtherObjectTouchesEgg_DoesNotDestroyEgg()
     {
-        // Arrange
         _playerObject.tag = "Untagged";
 
-        // Act
         _playerObject.transform.position = Vector3.zero;
         Physics.SyncTransforms();
 
         yield return new WaitForFixedUpdate();
         yield return null;
 
-        // Assert
         Assert.That(_eggObject != null, Is.True);
         Assert.That(_eggManager.ActiveEggCount, Is.EqualTo(0));
     }
@@ -85,7 +78,6 @@ public class EggPlayModeTests
     [UnityTest]
     public IEnumerator OnTriggerEnter_WhenManagerIsMissing_DoesNotDestroyEgg()
     {
-        // Arrange
         _egg.Initialize(null);
         _eggManager.RegisterEgg();
 
@@ -94,14 +86,28 @@ public class EggPlayModeTests
             "EggManager reference is missing!"
         );
 
-        // Act
         _playerObject.transform.position = Vector3.zero;
         Physics.SyncTransforms();
 
         yield return new WaitForFixedUpdate();
         yield return null;
 
-        // Assert
+        Assert.That(_eggObject != null, Is.True);
+        Assert.That(_eggManager.ActiveEggCount, Is.EqualTo(1));
+    }
+
+    [UnityTest]
+    public IEnumerator OnTriggerEnter_WhenOtherObjectTouchesEgg_DoesNotChangeEggCount()
+    {
+        _eggManager.RegisterEgg();
+
+        _playerObject.tag = "Untagged";
+        _playerObject.transform.position = Vector3.zero;
+        Physics.SyncTransforms();
+
+        yield return new WaitForFixedUpdate();
+        yield return null;
+
         Assert.That(_eggObject != null, Is.True);
         Assert.That(_eggManager.ActiveEggCount, Is.EqualTo(1));
     }

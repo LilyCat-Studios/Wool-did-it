@@ -18,6 +18,8 @@ public class ChickenAttackPlayModeTests
         _playerObject = new GameObject("Player");
 
         _chickenAttack = _chickenObject.AddComponent<ChickenAttack>();
+
+        SetPrivateField(_chickenAttack, "_attackDuration", 0.1f);
     }
 
     [TearDown]
@@ -27,38 +29,9 @@ public class ChickenAttackPlayModeTests
         Object.Destroy(_playerObject);
     }
 
-    [Test]
-    public void StartAttack_StartsAttack()
-    {
-        _chickenAttack.StartAttack(_playerObject.transform);
-
-        Assert.That(_chickenAttack.IsAttacking, Is.True);
-    }
-
-    [Test]
-    public void StartAttack_CalledAgain_KeepsAttackActive()
-    {
-        _chickenAttack.StartAttack(_playerObject.transform);
-
-        _chickenAttack.StartAttack(_playerObject.transform);
-
-        Assert.That(_chickenAttack.IsAttacking, Is.True);
-    }
-
-    [Test]
-    public void HandleAttack_WhenNotAttacking_ReturnsTrue()
-    {
-        bool result = _chickenAttack.HandleAttack();
-
-        Assert.That(result, Is.True);
-        Assert.That(_chickenAttack.IsAttacking, Is.False);
-    }
-
     [UnityTest]
     public IEnumerator HandleAttack_WhenDurationExpires_StopsAttack()
     {
-        SetPrivateField(_chickenAttack, "_attackDuration", 0.1f);
-
         _chickenAttack.StartAttack(_playerObject.transform);
 
         bool result = false;
@@ -71,22 +44,6 @@ public class ChickenAttackPlayModeTests
 
         Assert.That(result, Is.True);
         Assert.That(_chickenAttack.IsAttacking, Is.False);
-    }
-
-    [UnityTest]
-    public IEnumerator HandleAttack_WhenTargetIsMissing_KeepsAttackActive()
-    {
-        // Arrange
-        _chickenAttack.StartAttack(null);
-
-        // Act
-        yield return null;
-
-        bool result = _chickenAttack.HandleAttack();
-
-        // Assert
-        Assert.That(result, Is.False);
-        Assert.That(_chickenAttack.IsAttacking, Is.True);
     }
 
     private void SetPrivateField(object target, string fieldName, object value)

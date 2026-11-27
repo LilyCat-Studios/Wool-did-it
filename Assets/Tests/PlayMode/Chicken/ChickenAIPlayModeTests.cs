@@ -1,128 +1,53 @@
-﻿
-using System.Collections;
+﻿using System.Collections;
 using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.TestTools;
 
 public class ChickenAIPlayModeTests
 {
     private GameObject _chickenObject;
-    private GameObject _playerObject;
-    private GameObject _secondPlayerObject;
+    private GameObject _roamingCenterObject;
 
     private ChickenAI _chickenAI;
-    private ChickenAttack _chickenAttack;
+    private NavMeshAgent _agent;
 
     [SetUp]
     public void SetUp()
     {
-        _chickenObject = new GameObject("Chicken");
-        _playerObject = new GameObject("Player");
-        _secondPlayerObject = new GameObject("Second Player");
+        _chickenObject = new GameObject("Test Chicken");
+        _roamingCenterObject = new GameObject("Roaming Center");
 
+        _agent = _chickenObject.AddComponent<NavMeshAgent>();
         _chickenAI = _chickenObject.AddComponent<ChickenAI>();
-        _chickenAttack = _chickenObject.AddComponent<ChickenAttack>();
 
-        SetPrivateField(_chickenAI, "_chickenAttack", _chickenAttack);
+        SetPrivateField(_chickenAI, "_agent", _agent);
+        SetPrivateField(_chickenAI, "_roamingCenter", _roamingCenterObject.transform);
+        SetPrivateField(_chickenAI, "_roamingStartDelay", 0.1f);
     }
 
     [TearDown]
     public void TearDown()
     {
         Object.Destroy(_chickenObject);
-        Object.Destroy(_playerObject);
-        Object.Destroy(_secondPlayerObject);
+        Object.Destroy(_roamingCenterObject);
     }
 
-    [Test]
-    public void BecomeAngry_ChangesStateToAngry()
+    [UnityTest]
+    public IEnumerator Update_AfterRoamingStartDelay_ChangesStateToRoaming()
     {
-        _chickenAI.BecomeAngry(_playerObject.transform);
-
-        Assert.That(
-            _chickenAI.CurrentState,
-            Is.EqualTo(ChickenAI.ChickenState.Angry)
-        );
-    }
-
-    [Test]
-    public void BecomeAngry_StartsChickenAttack()
-    {
-        _chickenAI.BecomeAngry(_playerObject.transform);
-
-        Assert.That(_chickenAttack.IsAttacking, Is.True);
-    }
-
-    [Test]
-    public void BecomeAngry_SetsCorrectAttackTarget()
-    {
-        _chickenAI.BecomeAngry(_playerObject.transform);
-
-        Assert.That(
-            GetAttackTarget(),
-            Is.EqualTo(_playerObject.transform)
-        );
-    }
-
-    [Test]
-    public void BecomeAngry_WhenAlreadyAngry_ChangesAttackTarget()
-    {
-        _chickenAI.BecomeAngry(_playerObject.transform);
-
-        _chickenAI.BecomeAngry(_secondPlayerObject.transform);
-
-        Assert.That(
-            _chickenAI.CurrentState,
-            Is.EqualTo(ChickenAI.ChickenState.Angry)
-        );
-
-        Assert.That(_chickenAttack.IsAttacking, Is.True);
-
-        Assert.That(
-            GetAttackTarget(),
-            Is.EqualTo(_secondPlayerObject.transform)
-        );
-    }
-
-    [Test]
-    public void BecomeAngry_WhenTargetIsNull_DoesNotStartAttack()
-    {
-        _chickenAI.BecomeAngry(null);
-
         Assert.That(
             _chickenAI.CurrentState,
             Is.EqualTo(ChickenAI.ChickenState.Idle)
         );
 
-        Assert.That(_chickenAttack.IsAttacking, Is.False);
-    }
-
-    [UnityTest]
-    public IEnumerator BecomeAngry_ChangesStateDuringPlayMode()
-    {
-        _chickenAI.BecomeAngry(_playerObject.transform);
-
-        yield return null;
+        yield return new WaitForSeconds(0.2f);
 
         Assert.That(
             _chickenAI.CurrentState,
-            Is.EqualTo(ChickenAI.ChickenState.Angry)
+            Is.EqualTo(ChickenAI.ChickenState.Roaming)
         );
-
-        Assert.That(_chickenAttack.IsAttacking, Is.True);
-    }
-
-    private Transform GetAttackTarget()
-    {
-        FieldInfo field = typeof(ChickenAttack).GetField(
-            "_target",
-            BindingFlags.Instance | BindingFlags.NonPublic
-        );
-
-        Assert.That(field, Is.Not.Null);
-
-        return (Transform)field.GetValue(_chickenAttack);
     }
 
     private void SetPrivateField(object target, string fieldName, object value)

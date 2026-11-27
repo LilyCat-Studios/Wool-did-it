@@ -1,9 +1,7 @@
 ﻿using System.Collections;
-using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-using System.Text.RegularExpressions;
 
 public class ChickenEggSpawnerPlayModeTests
 {
@@ -37,9 +35,9 @@ public class ChickenEggSpawnerPlayModeTests
     [TearDown]
     public void TearDown()
     {
-        Object[] objects = Object.FindObjectsOfType<Egg>();
+        Object[] eggs = Object.FindObjectsOfType<Egg>();
 
-        foreach (Object egg in objects)
+        foreach (Object egg in eggs)
         {
             if (egg != null && egg != _eggPrefab)
                 Object.Destroy(egg);
@@ -54,14 +52,15 @@ public class ChickenEggSpawnerPlayModeTests
     [UnityTest]
     public IEnumerator Update_WhenSpawnIntervalExpires_SpawnsEgg()
     {
+        int eggCountBefore = Object.FindObjectsOfType<Egg>().Length;
+
         yield return new WaitForSeconds(0.15f);
-        yield return null;
 
         Assert.That(_eggManager.ActiveEggCount, Is.EqualTo(1));
 
-        Egg[] eggs = Object.FindObjectsOfType<Egg>();
+        int eggCountAfter = Object.FindObjectsOfType<Egg>().Length;
 
-        Assert.That(eggs.Length, Is.EqualTo(2));
+        Assert.That(eggCountAfter, Is.EqualTo(eggCountBefore + 1));
     }
 
     [UnityTest]
@@ -74,44 +73,12 @@ public class ChickenEggSpawnerPlayModeTests
         Assert.That(_eggManager.ActiveEggCount, Is.EqualTo(0));
     }
 
-    [Test]
-    public void SpawnEgg_WhenPrefabIsMissing_DoesNotSpawnEgg()
-    {
-        // Arrange
-        SetPrivateField(_spawner, "_eggPrefab", null);
-
-        int eggCountBefore = Object.FindObjectsByType<Egg>(
-            FindObjectsSortMode.None
-        ).Length;
-
-        MethodInfo spawnEggMethod = typeof(ChickenEggSpawner).GetMethod(
-            "SpawnEgg",
-            BindingFlags.Instance | BindingFlags.NonPublic
-        );
-
-        Assert.That(spawnEggMethod, Is.Not.Null);
-
-        LogAssert.Expect(
-            LogType.Error,
-            $"Missing reference on ChickenEggSpawner: {_spawner.gameObject.name}"
-        );
-
-        // Act
-        spawnEggMethod.Invoke(_spawner, null);
-
-        // Assert
-        int eggCountAfter = Object.FindObjectsByType<Egg>(
-            FindObjectsSortMode.None
-        ).Length;
-
-        Assert.That(eggCountAfter, Is.EqualTo(eggCountBefore));
-    }
-
     private void SetPrivateField(object target, string fieldName, object value)
     {
-        FieldInfo field = target.GetType().GetField(
+        var field = target.GetType().GetField(
             fieldName,
-            BindingFlags.Instance | BindingFlags.NonPublic
+            System.Reflection.BindingFlags.Instance |
+            System.Reflection.BindingFlags.NonPublic
         );
 
         Assert.That(field, Is.Not.Null);

@@ -4,12 +4,16 @@ using UnityEngine;
 public class ChickenAttackTests
 {
     private GameObject _chickenObject;
+    private GameObject _playerObject;
+
     private ChickenAttack _chickenAttack;
 
     [SetUp]
     public void SetUp()
     {
         _chickenObject = new GameObject("Chicken");
+        _playerObject = new GameObject("Player");
+
         _chickenAttack = _chickenObject.AddComponent<ChickenAttack>();
     }
 
@@ -17,34 +21,25 @@ public class ChickenAttackTests
     public void TearDown()
     {
         Object.DestroyImmediate(_chickenObject);
+        Object.DestroyImmediate(_playerObject);
     }
 
     [Test]
     public void StartAttack_SetsIsAttackingToTrue()
     {
-        GameObject targetObject = new GameObject("Player");
-
-        _chickenAttack.StartAttack(targetObject.transform);
+        _chickenAttack.StartAttack(_playerObject.transform);
 
         Assert.That(_chickenAttack.IsAttacking, Is.True);
-
-        Object.DestroyImmediate(targetObject);
     }
 
     [Test]
     public void StartAttack_CalledAgain_KeepsAttacking()
     {
-        GameObject firstTarget = new GameObject("FirstTarget");
-        GameObject secondTarget = new GameObject("SecondTarget");
+        _chickenAttack.StartAttack(_playerObject.transform);
 
-        _chickenAttack.StartAttack(firstTarget.transform);
-
-        _chickenAttack.StartAttack(secondTarget.transform);
+        _chickenAttack.StartAttack(_playerObject.transform);
 
         Assert.That(_chickenAttack.IsAttacking, Is.True);
-
-        Object.DestroyImmediate(firstTarget);
-        Object.DestroyImmediate(secondTarget);
     }
 
     [Test]
@@ -54,5 +49,16 @@ public class ChickenAttackTests
 
         Assert.That(result, Is.True);
         Assert.That(_chickenAttack.IsAttacking, Is.False);
+    }
+
+    [Test]
+    public void HandleAttack_WhenTargetIsMissing_KeepsAttackActive()
+    {
+        _chickenAttack.StartAttack(null);
+
+        bool result = _chickenAttack.HandleAttack();
+
+        Assert.That(result, Is.False);
+        Assert.That(_chickenAttack.IsAttacking, Is.True);
     }
 }

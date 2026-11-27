@@ -29,7 +29,7 @@ public class EggManager : MonoBehaviour
 
         Debug.Log($"Active eggs: {_activeEggCount}");
 
-        ChickenAI[] chickens = FindObjectsOfType<ChickenAI>();
+        ChickenAI[] chickens = FindObjectsByType<ChickenAI>(FindObjectsSortMode.None);
 
         foreach (ChickenAI chicken in chickens)
         {

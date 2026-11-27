@@ -1,4 +1,3 @@
-
 using System.Reflection;
 using NUnit.Framework;
 using UnityEditor;
@@ -127,6 +126,28 @@ public class EggManagerTests
     }
 
     [Test]
+    public void HandleEggStepped_WhenMultipleChickensAreWithinRadius_MakesAllChickensAngry()
+    {
+        _chickenObject.transform.position = new Vector3(5f, 0f, 0f);
+        _secondChickenObject.transform.position = new Vector3(8f, 0f, 0f);
+
+        _eggManager.HandleEggStepped(
+            Vector3.zero,
+            _playerObject.transform
+        );
+
+        Assert.That(
+            _chickenAI.CurrentState,
+            Is.EqualTo(ChickenAI.ChickenState.Angry)
+        );
+
+        Assert.That(
+            _secondChickenAI.CurrentState,
+            Is.EqualTo(ChickenAI.ChickenState.Angry)
+        );
+    }
+
+    [Test]
     public void HandleEggStepped_WhenChickenIsWithinRadius_SetsCorrectAttackTarget()
     {
         _chickenObject.transform.position = new Vector3(5f, 0f, 0f);
@@ -218,6 +239,7 @@ public class EggManagerTests
         );
 
         Assert.That(field, Is.Not.Null);
+
         field.SetValue(target, value);
     }
 }
