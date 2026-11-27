@@ -8,29 +8,29 @@ using System.Collections.Generic;
 public class PlayerMessage : NetworkBehaviour
 {
     [Header("References")]
-    [SerializeField] private CanvasGroup canvasGroup;
-    [SerializeField] private TMP_Text messageText;
+    [SerializeField] internal CanvasGroup canvasGroup;
+    [SerializeField] internal TMP_Text messageText;
 
     [Header("Timing")]
-    [SerializeField] private float messageDuration = 3f;
-    [SerializeField] private float popInDuration = 0.3f;
-    [SerializeField] private float popOutDuration = 0.25f;
+    [SerializeField] internal float messageDuration = 3f;
+    [SerializeField] internal float popInDuration = 0.3f;
+    [SerializeField] internal float popOutDuration = 0.25f;
 
     [Header("Pop-Up Feel")]
     [SerializeField] private float startScale = 0.5f;
     [SerializeField] private float floatUpDistance = 0.15f;
 
     [Header("Distance Scaling (Other Players)")]
-    [SerializeField] private float shrinkStartDistance = 10f;
-    [SerializeField] private float disappearDistance = 25f;
+    [SerializeField] internal float shrinkStartDistance = 10f;
+    [SerializeField] internal float disappearDistance = 25f;
 
     [Tooltip("Extra buffer distance on the server.")]
     [SerializeField] private float networkSendBuffer = 5f;
 
     [Header("Settings")]
-    [SerializeField] private int maxCharacterLength = 120;
+    [SerializeField] internal int maxCharacterLength = 120;
 
-    private Camera localCamera;
+    internal Camera localCamera;
     private Canvas messageCanvas;
     private Coroutine animationCoroutine;
 
@@ -61,12 +61,16 @@ public class PlayerMessage : NetworkBehaviour
         originalScale = messageTransform.localScale;
         originalLocalPos = messageTransform.localPosition;
 
-        // Initialize animation values
-        currentAnimScale = originalScale;
-        currentAnimAlpha = 0f;
+        // Force TMP & Canvas to generate meshes/shaders now while hidden
+        canvasGroup.gameObject.SetActive(true);
+        if (messageText != null)
+        {
+            messageText.text = " ";
+            messageText.ForceMeshUpdate();
+            messageText.text = string.Empty;
+        }
 
-        canvasGroup.alpha = 0f;
-        canvasGroup.gameObject.SetActive(false);
+        HideMessageImmediate();
     }
 
     protected override void OnSpawned(bool asServer)
@@ -155,7 +159,7 @@ public class PlayerMessage : NetworkBehaviour
 
         messageText.text = message;
 
-        canvasGroup.gameObject.SetActive(true);
+        if (messageCanvas != null) messageCanvas.enabled = true;
 
         if (messageCanvas != null && !messageCanvas.enabled)
             messageCanvas.enabled = true;
@@ -181,7 +185,7 @@ public class PlayerMessage : NetworkBehaviour
         canvasGroup.transform.localScale = originalScale;
         canvasGroup.transform.localPosition = originalLocalPos;
 
-        canvasGroup.gameObject.SetActive(false);
+        if (messageCanvas != null) messageCanvas.enabled = false;
     }
 
     private IEnumerator PopUpRoutine()
@@ -193,12 +197,19 @@ public class PlayerMessage : NetworkBehaviour
 
         Vector3 minScale = originalScale * startScale;
 
+        // Set initial visual state immediately
+        currentAnimAlpha = 0f;
+        currentAnimScale = minScale;
+        messageTransform.localPosition = startPos;
+
+        // Wait one frame so TMP mesh generation doesn't eat into popInDuration
+        yield return null;
+
         // 1. Pop In
         float timer = 0f;
-
         while (timer < popInDuration)
         {
-            timer += Time.deltaTime;
+            timer += Mathf.Min(Time.deltaTime, 0.05f);
 
             float t = Mathf.Clamp01(timer / popInDuration);
 
@@ -266,14 +277,12 @@ public class PlayerMessage : NetworkBehaviour
 
     private void LateUpdate()
     {
-        if (canvasGroup == null || !canvasGroup.gameObject.activeSelf)
-            return;
+        if (canvasGroup == null || (messageCanvas != null && !messageCanvas.enabled)) return;
 
         if (localCamera == null)
             localCamera = Camera.main;
 
-        if (localCamera == null)
-            return;
+        if (localCamera == null) return;
 
         Transform messageTransform = canvasGroup.transform;
 
