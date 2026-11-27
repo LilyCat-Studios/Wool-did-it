@@ -38,12 +38,12 @@
                 },
                 {
                     "name": "Sprint",
-                    "type": "Button",
+                    "type": "Value",
                     "id": "e5f163e2-4442-4ddd-a778-a3a865b8a855",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": false,
+                    "initialStateCheck": true,
                     "priority": 0
                 },
                 {
