@@ -1,6 +1,12 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
+// Implementation cameraController:
+//float sensitivity = MouseSensitivitySettings.MouseSensitivity;
+
+//float mouseX = mouseInput.x * sensitivity;
+//float mouseY = mouseInput.y * sensitivity;
+
 public class MouseSensitivitySettings : MonoBehaviour
 {
     [SerializeField] private Slider sensitivitySlider;
@@ -11,6 +17,17 @@ public class MouseSensitivitySettings : MonoBehaviour
     {
        LoadSettings(); 
     }
+
+    public void SetSensitivity(float value)
+    {
+        MouseSensitivity = value;
+        
+        PlayerPrefs.SetFloat(SensitivityKey, value);
+        PlayerPrefs.Save();
+
+        Debug.Log($"Mouse Sensitivity: {value}");
+    }
+    
     private void LoadSettings()
     {
         float savedSensitivity = PlayerPrefs.GetFloat(SensitivityKey, 1f);
@@ -23,15 +40,5 @@ public class MouseSensitivitySettings : MonoBehaviour
         sensitivitySlider.onValueChanged.AddListener(SetSensitivity);
         
         SetSensitivity(savedSensitivity);
-    }
-
-    public void SetSensitivity(float value)
-    {
-        MouseSensitivity = value;
-        
-        PlayerPrefs.SetFloat(SensitivityKey, value);
-        PlayerPrefs.Save();
-
-        Debug.Log($"Mouse Sensitivity: {value}");
     }
 }

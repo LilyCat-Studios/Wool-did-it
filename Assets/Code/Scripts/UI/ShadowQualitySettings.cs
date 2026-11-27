@@ -12,22 +12,6 @@ public class ShadowQualitySettings : MonoBehaviour
 		LoadSettings();
 	}
 
-	private void LoadSettings()
-	{
-		int savedQuality = PlayerPrefs.GetInt(ShadowQualityKey, 2);
-		savedQuality = Mathf.Clamp(savedQuality, 0, 3);
-
-		shadowQualityDropdown.SetValueWithoutNotify(savedQuality);
-		shadowQualityDropdown.RefreshShownValue();
-
-		shadowQualityDropdown.onValueChanged.RemoveListener(
-			SetShadowQuality);
-		shadowQualityDropdown.onValueChanged.AddListener(
-			SetShadowQuality);
-
-		SetShadowQuality(savedQuality);
-	}
-
 	public void SetShadowQuality(int index)
 	{
 		if (index < 0 || index > 3)
@@ -57,6 +41,21 @@ public class ShadowQualitySettings : MonoBehaviour
 		PlayerPrefs.Save();
 		
 		Debug.Log($"Shadow Quality Changed to: {shadowQualityDropdown.options[index].text}");
+	}
+	private void LoadSettings()
+	{
+		int savedQuality = PlayerPrefs.GetInt(ShadowQualityKey, 2);
+		savedQuality = Mathf.Clamp(savedQuality, 0, 3);
+
+		shadowQualityDropdown.SetValueWithoutNotify(savedQuality);
+		shadowQualityDropdown.RefreshShownValue();
+
+		shadowQualityDropdown.onValueChanged.RemoveListener(
+			SetShadowQuality);
+		shadowQualityDropdown.onValueChanged.AddListener(
+			SetShadowQuality);
+
+		SetShadowQuality(savedQuality);
 	}
 }
 		

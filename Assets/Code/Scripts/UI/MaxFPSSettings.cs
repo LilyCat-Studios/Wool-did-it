@@ -13,6 +13,20 @@ public class MaxFPSSettings : MonoBehaviour
         LoadSettings();
     }
 
+    public void SetMaxFPS(int index)
+    {
+        if (index < 0 || index >= fpsOptions.Length)
+            return;
+        
+        int fps =  fpsOptions[index];
+        
+        Application.targetFrameRate = fps;
+        
+        PlayerPrefs.SetInt(MaxFPSKey, fps);
+        PlayerPrefs.Save();
+        
+        Debug.Log("Max FPS set to: " + (fps == 0 ? "Unlimited" : fps.ToString()));
+    }
     private void LoadSettings()
     {
         int savedFPS = PlayerPrefs.GetInt(MaxFPSKey, 60);
@@ -34,21 +48,6 @@ public class MaxFPSSettings : MonoBehaviour
         maxFPSDropdown.onValueChanged.AddListener(SetMaxFPS);
         
         SetMaxFPS(selectedIndex);
-    }
-
-    public void SetMaxFPS(int index)
-    {
-        if (index < 0 || index >= fpsOptions.Length)
-            return;
-        
-        int fps =  fpsOptions[index];
-        
-        Application.targetFrameRate = fps;
-        
-        PlayerPrefs.SetInt(MaxFPSKey, fps);
-        PlayerPrefs.Save();
-        
-        Debug.Log("Max FPS set to: " + (fps == 0 ? "Unlimited" : fps.ToString()));
     }
 
 }

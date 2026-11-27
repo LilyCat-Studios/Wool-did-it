@@ -13,19 +13,6 @@ public class BrightnessSettings : MonoBehaviour
         LoadSettings();
     }
 
-    private void LoadSettings()
-    {
-        float savedBrightness = PlayerPrefs.GetFloat(BrightnessKey, 1f);
-        
-        savedBrightness = Mathf.Clamp(savedBrightness, 0f, 2f);
-        brightnessSlider.SetValueWithoutNotify(savedBrightness);
-        
-        brightnessSlider.onValueChanged.RemoveListener(SetBrightness);
-        brightnessSlider.onValueChanged.AddListener(SetBrightness);
-        
-        SetBrightness(savedBrightness);
-    }
-
     public void SetBrightness(float value)
     {
         float alpha = 1f - (value / 2f);
@@ -40,5 +27,17 @@ public class BrightnessSettings : MonoBehaviour
         
         Debug.Log($"Brightness: {value}");
         
+    }
+    private void LoadSettings()
+    {
+        float savedBrightness = PlayerPrefs.GetFloat(BrightnessKey, 1f);
+        
+        savedBrightness = Mathf.Clamp(savedBrightness, 0f, 2f);
+        brightnessSlider.SetValueWithoutNotify(savedBrightness);
+        
+        brightnessSlider.onValueChanged.RemoveListener(SetBrightness);
+        brightnessSlider.onValueChanged.AddListener(SetBrightness);
+        
+        SetBrightness(savedBrightness);
     }
 }

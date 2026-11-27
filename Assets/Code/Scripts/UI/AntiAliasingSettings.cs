@@ -13,6 +13,21 @@ public class AntiAliasingSettings : MonoBehaviour
         LoadSettings();
     }
 
+    public void SetAntiAliasing(int index)
+    {
+        if (index < 0 || index >= antiAliasingOptions.Length)
+            return;
+        
+        int samples = antiAliasingOptions[index];
+        
+        QualitySettings.antiAliasing = samples;
+        
+        PlayerPrefs.SetInt(AntiAliasingKey, samples);
+        PlayerPrefs.Save();
+        
+        Debug.Log("Anti Aliasing set to: " + (samples == 0 ? "off" : samples + "x MSAA"));
+        
+    }
     private void LoadSettings()
     {
         int savedValue = PlayerPrefs.GetInt(AntiAliasingKey, 4);
@@ -35,21 +50,5 @@ public class AntiAliasingSettings : MonoBehaviour
         antiAliasingDropdown.onValueChanged.AddListener(SetAntiAliasing);
         
         SetAntiAliasing(selectedIndex);
-    }
-
-    public void SetAntiAliasing(int index)
-    {
-        if (index < 0 || index >= antiAliasingOptions.Length)
-            return;
-        
-        int samples = antiAliasingOptions[index];
-        
-        QualitySettings.antiAliasing = samples;
-        
-        PlayerPrefs.SetInt(AntiAliasingKey, samples);
-        PlayerPrefs.Save();
-        
-        Debug.Log("Anti Aliasing set to: " + (samples == 0 ? "off" : samples + "x MSAA"));
-        
     }
 }

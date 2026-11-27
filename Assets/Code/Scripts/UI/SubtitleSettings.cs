@@ -14,7 +14,8 @@ public class SubtitleSettings : MonoBehaviour
 
     public void SetSubtitles(bool enabled)
     {
-        PlayerPrefs.SetInt("SubtitlesEnabled", enabled ? 1 : 0);
+        // subtitleManager.SetSubtitlesEnabled(enabled);
+        PlayerPrefs.SetInt(SubtitlesKey, enabled ? 1 : 0);
         Debug.Log("Subtitles: " + enabled);
     }
 

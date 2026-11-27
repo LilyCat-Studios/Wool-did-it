@@ -1186,10 +1186,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bbb97eee5668bc04b87aeece29282817, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Game::MenuSettings
-  videoPanel: {fileID: 1997503744}
-  audioPanel: {fileID: 1556630222}
-  controlsPanel: {fileID: 877138750}
-  gameplayPanel: {fileID: 580876117}
 --- !u!4 &121771357
 Transform:
   m_ObjectHideFlags: 0

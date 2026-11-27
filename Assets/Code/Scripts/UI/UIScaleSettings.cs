@@ -15,6 +15,7 @@ public class UIScaleSettings : MonoBehaviour
     {
      //   uiRoot.localScale =  Vector3.one * value;
         PlayerPrefs.SetFloat("UIScale", value);
+        PlayerPrefs.Save();
         Debug.Log("UI Scale: " + value);
     }
 

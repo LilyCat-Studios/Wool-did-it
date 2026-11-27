@@ -13,6 +13,7 @@ public class MotionBlurSettings : MonoBehaviour
 
     public void SetMotionBlur(bool enabled)
     {
+        // motionBlurEffect.enabled = enabled;
         PlayerPrefs.SetInt(MotionBlurKey, enabled ? 1 : 0);
         Debug.Log("Motion Blur: " + enabled);
     }

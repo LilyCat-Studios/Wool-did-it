@@ -17,24 +17,6 @@ public class InvertMouseSettings : MonoBehaviour
         LoadSettings();
     }
 
-    private void LoadSettings()
-    {
-        bool savedInvertX = PlayerPrefs.GetInt(InvertXKey, 0) == 1;
-        bool savedInvertY = PlayerPrefs.GetInt(InvertYKey, 0) == 1;
-        
-        invertXToggle.SetIsOnWithoutNotify(savedInvertX);
-        invertYToggle.SetIsOnWithoutNotify(savedInvertY);
-
-        invertXToggle.onValueChanged.RemoveListener(SetInvertX);
-        invertXToggle.onValueChanged.AddListener(SetInvertX);
-        
-        invertYToggle.onValueChanged.RemoveListener(SetInvertY);
-        invertYToggle.onValueChanged.AddListener(SetInvertY);
-        
-        SetInvertX(savedInvertX);
-        SetInvertY(savedInvertY);
-    }
-
     public void SetInvertX(bool isEnabled)
     {
         InvertX = isEnabled;
@@ -53,5 +35,22 @@ public class InvertMouseSettings : MonoBehaviour
         PlayerPrefs.Save();
         
         Debug.Log("Invert Y: " + isEnabled);
+    }
+    private void LoadSettings()
+    {
+        bool savedInvertX = PlayerPrefs.GetInt(InvertXKey, 0) == 1;
+        bool savedInvertY = PlayerPrefs.GetInt(InvertYKey, 0) == 1;
+        
+        invertXToggle.SetIsOnWithoutNotify(savedInvertX);
+        invertYToggle.SetIsOnWithoutNotify(savedInvertY);
+
+        invertXToggle.onValueChanged.RemoveListener(SetInvertX);
+        invertXToggle.onValueChanged.AddListener(SetInvertX);
+        
+        invertYToggle.onValueChanged.RemoveListener(SetInvertY);
+        invertYToggle.onValueChanged.AddListener(SetInvertY);
+        
+        SetInvertX(savedInvertX);
+        SetInvertY(savedInvertY);
     }
 }

@@ -13,6 +13,15 @@ public class VSyncSettings : MonoBehaviour
         LoadSettings();
     }
 
+    public void SetVSync(bool isEnabled)
+    {
+        QualitySettings.vSyncCount = isEnabled ? 1 : 0;
+        
+        PlayerPrefs.SetInt(VSyncKey, isEnabled ? 1 : 0);
+        PlayerPrefs.Save();
+        
+        Debug.Log("V-Sync: " + isEnabled);
+    }
     private void LoadSettings()
     {
         int savedValue = PlayerPrefs.GetInt(VSyncKey, 1);
@@ -24,15 +33,5 @@ public class VSyncSettings : MonoBehaviour
         
         SetVSync(savedValue == 1);
         
-    }
-
-    public void SetVSync(bool isEnabled)
-    {
-        QualitySettings.vSyncCount = isEnabled ? 1 : 0;
-        
-        PlayerPrefs.SetInt(VSyncKey, isEnabled ? 1 : 0);
-        PlayerPrefs.Save();
-        
-        Debug.Log("V-Sync: " + isEnabled);
     }
 }

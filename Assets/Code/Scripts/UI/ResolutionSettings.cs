@@ -12,7 +12,7 @@ public class ResolutionSettings : MonoBehaviour
     {
         if (resolutionDropdown == null)
         {
-            Debug.LogError("resolutionDropdown is niet gekoppeld in de Inspector!", this);
+            Debug.LogError("resolutionDropdown is not connected in the inspector!", this);
             return;
         }
 
@@ -84,7 +84,7 @@ public class ResolutionSettings : MonoBehaviour
 
     private void OnDropdownValueChanged(int index)
     {
-        Debug.Log($"Dropdown gewijzigd naar index: {index}");
+        Debug.Log($"Changed dropdown to index: {index}");
         ApplyResolution(index);
     }
 
@@ -92,7 +92,7 @@ public class ResolutionSettings : MonoBehaviour
     {
         if (index < 0 || index >= availableResolutions.Count)
         {
-            Debug.LogWarning($"Ongeldige resolutie-index: {index}");
+            Debug.LogWarning($"Invalid resolution-index: {index}");
             return;
         }
 
@@ -111,7 +111,7 @@ public class ResolutionSettings : MonoBehaviour
 #endif
 
         Screen.SetResolution(target.width, target.height, mode);
-        Debug.Log($"Resolutie ingesteld op: {target.width} x {target.height} ({mode})");
+        Debug.Log($"Resolutie: {target.width} x {target.height} ({mode})");
     }
 
     private void AddResolution(int width, int height)

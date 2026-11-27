@@ -19,14 +19,14 @@ public class HUDSettings : MonoBehaviour
 
      public void SetHUD(bool enabled)
      {
-          // hudObject.SetHUD(enabled);
+          // hudObject.SetActive(enabled);
           PlayerPrefs.SetInt(HUDKey, enabled ? 1 : 0);
           Debug.Log("HUD: " + enabled);
      }
 
      public void SetCrossHair(bool enabled)
      {
-         //crosshairObject.SetCrossHair(enabled);
+         //crosshairObject.SetActive(enabled);
          PlayerPrefs.SetInt(CrossHair, enabled ? 1 : 0);
          Debug.Log( "Crosshair" + enabled);
      }

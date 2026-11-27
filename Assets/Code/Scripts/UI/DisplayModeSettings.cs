@@ -12,19 +12,6 @@ public class DisplayModeSettings : MonoBehaviour
        LoadSettings();
     }
 
-    private void LoadSettings()
-    {
-        int savedMode = PlayerPrefs.GetInt(DisplayModekey, 0);
-        
-        displayModeDropdown.SetValueWithoutNotify(savedMode);
-        displayModeDropdown.RefreshShownValue();
-        
-        displayModeDropdown.onValueChanged.RemoveListener(SetDisplayMode);
-        displayModeDropdown.onValueChanged.AddListener(SetDisplayMode);
-        
-        SetDisplayMode(savedMode);
-    }
-
     public void SetDisplayMode(int index)
     {
         FullScreenMode mode;
@@ -49,5 +36,17 @@ public class DisplayModeSettings : MonoBehaviour
         PlayerPrefs.Save();
         
         Debug.Log("Changed display mode to: " + mode);
+    }
+    private void LoadSettings()
+    {
+        int savedMode = PlayerPrefs.GetInt(DisplayModekey, 0);
+        
+        displayModeDropdown.SetValueWithoutNotify(savedMode);
+        displayModeDropdown.RefreshShownValue();
+        
+        displayModeDropdown.onValueChanged.RemoveListener(SetDisplayMode);
+        displayModeDropdown.onValueChanged.AddListener(SetDisplayMode);
+        
+        SetDisplayMode(savedMode);
     }
 }

@@ -146,6 +146,7 @@ public class RebindingSettings : MonoBehaviour
                 if (IsDuplicate(entry))
                 {
                     action.RemoveBindingOverride(entry.bindingIndex);
+                    SaveOverrides(inputActions);
                     SetStatus("Key is in use");
                 }
                 else
@@ -196,6 +197,7 @@ public class RebindingSettings : MonoBehaviour
         currentOperation?.Cancel();
         inputActions.RemoveAllBindingOverrides();
         PlayerPrefs.DeleteKey(PrefsKey);
+        PlayerPrefs.Save();
         RefreshAll();
         SetStatus("Default settings recovered");
     }
