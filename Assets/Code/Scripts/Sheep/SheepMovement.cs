@@ -65,7 +65,7 @@ public class SheepMovement : NetworkBehaviour
 
     // Cached input values populated by PlayerInput SendMessages callbacks.
     private Vector2 _moveInput;
-    private bool _sprintHeld;
+    private bool _sprintPressed;
     private bool _jumpPressed;
 
     private Vector3 _velocity;
@@ -116,7 +116,7 @@ public class SheepMovement : NetworkBehaviour
 
     // ---- PlayerInput Callbacks (Requires Behavior = Send Messages) ----
     private void OnMove(InputValue value) => _moveInput = value.Get<Vector2>();
-    private void OnSprint(InputValue value) => _sprintHeld = value.isPressed;
+    private void OnSprint(InputValue value) => _sprintPressed = value.isPressed;
     private void OnJump(InputValue value) { if (value.isPressed) _jumpPressed = true; }
 
     private void Update()
@@ -138,7 +138,7 @@ public class SheepMovement : NetworkBehaviour
         Vector3 camForward = _cam != null ? _cam.forward : transform.forward;
         Vector3 camRight = _cam != null ? _cam.right : transform.right;
 
-        Vector3 targetVelocity = CalculateTargetVelocity(_moveInput, _sprintHeld, camForward, camRight);
+        Vector3 targetVelocity = CalculateTargetVelocity(_moveInput, _sprintPressed, camForward, camRight);
         _velocity = Vector3.MoveTowards(_velocity, targetVelocity, _acceleration * dt);
 
         UpdateRotation(dt);
