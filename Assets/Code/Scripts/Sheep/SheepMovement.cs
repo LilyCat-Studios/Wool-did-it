@@ -56,7 +56,7 @@ public class SheepMovement : NetworkBehaviour
     public bool InputEnabled { get; set; } = true;
 
     // Constant downward force applied while grounded to keep the character attached to the ground.
-    private const float GroundStick = -2f;
+    private const float _groundStick = -2f;
 
     private CharacterController _controller;
     private PlayerInput _playerInput;
@@ -213,7 +213,7 @@ public class SheepMovement : NetworkBehaviour
     internal float CalculateVerticalVelocity(float currentVertical, bool isGrounded, bool jumpPressed, float dt)
     {
         if (isGrounded && currentVertical < 0f)
-            currentVertical = GroundStick;
+            currentVertical = _groundStick;
 
         if (isGrounded && InputEnabled && jumpPressed)
             currentVertical = Mathf.Sqrt(_jumpHeight * -2f * _gravity);

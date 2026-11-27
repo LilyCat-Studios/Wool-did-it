@@ -1,7 +1,6 @@
 using NUnit.Framework;
 using UnityEngine;
 
-[TestFixture]
 public class SheepMovementTests
 {
     private GameObject _sheepObject;
@@ -186,14 +185,24 @@ public class SheepMovementTests
     }
 
     [Test]
-    public void SimulateRemoteStep_ZeroDeltaTime_DoesNotDivideByZero()
+    public void SimulateRemoteStep_ZeroDeltaTime_IgnoresStepAndPreservesState()
     {
-        // Alternate flow: dt <= 0
-        _sheepObject.transform.position = new Vector3(0f, 0f, 1f);
+        // Arrange: Give the object an initial valid movement state
+        _movement.transform.position = new Vector3(0f, 0f, 5f);
+        _movement.SimulateRemoteStep(1f); // Establish a known non-zero speed
+        float initialSpeed = _movement.ForwardSpeed;
 
-        Assert.DoesNotThrow(() => _movement.SimulateRemoteStep(0f));
-        Assert.That(_movement.ForwardSpeed, Is.EqualTo(0f).Within(0.001f));
+        // Move the object again before the 0f step
+        _movement.transform.position = new Vector3(0f, 0f, 10f);
+
+        // Act: Simulate a zero-time step
+        _movement.SimulateRemoteStep(0f);
+
+        // Assert: State was not corrupted with NaN/Infinity and remained unchanged
+        Assert.That(_movement.ForwardSpeed, Is.EqualTo(initialSpeed).Within(0.001f));
+        Assert.That(float.IsNaN(_movement.ForwardSpeed), Is.False);
     }
+
 
     #endregion
 }

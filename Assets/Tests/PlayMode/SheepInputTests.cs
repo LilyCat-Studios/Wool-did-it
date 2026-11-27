@@ -13,7 +13,7 @@ using UnityEditor.SceneManagement;
 [Category("Player Input")]
 public class SheepInputTests : InputTestFixture
 {
-    private const string ScenePath = "Assets/Level/Scenes/MovementExampleScene.unity";
+    private const string ScenePath = "Assets/Level/Scenes/SheepExampleScene.unity";
 
     private Keyboard keyboard;
 
