@@ -10,7 +10,7 @@ using UnityEditor.SceneManagement;
 [Category("Player Message")]
 public class PlayerMessageTests
 {
-    private const string ScenePath = "Assets/Level/Scenes/MovementExampleScene.unity";
+    private const string ScenePath = "Assets/Level/Scenes/SheepExampleScene.unity";
 
     private PlayerMessage playerMessage;
     private Canvas messageCanvas;
