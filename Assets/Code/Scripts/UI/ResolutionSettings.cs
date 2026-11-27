@@ -18,6 +18,28 @@ public class ResolutionSettings : MonoBehaviour
 
         LoadResolutions();
     }
+    public void SetResolution(int index)
+    {
+        Debug.Log("Selected dropdown option: " + index);
+
+        if (index < 0 || index >= availableResolutions.Count)
+            return;
+
+        Resolution resolution = availableResolutions[index];
+
+        Screen.SetResolution(
+            resolution.width,
+            resolution.height,
+            Screen.fullScreenMode
+        );
+
+        PlayerPrefs.SetInt("ResolutionWidth", resolution.width);
+        PlayerPrefs.SetInt("ResolutionHeight", resolution.height);
+        PlayerPrefs.Save();
+
+        Debug.Log("Resolution changed to: " +
+                  resolution.width + " x " + resolution.height);
+    }
 
     private void LoadResolutions()
     {
