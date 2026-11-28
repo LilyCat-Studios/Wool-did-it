@@ -10,10 +10,10 @@ using UnityEditor.SceneManagement;
 [Category("Player Message")]
 public class PlayerMessageTests
 {
-    private const string ScenePath = "Assets/Level/Scenes/SheepExampleScene.unity";
+    private const string _ScenePath = "Assets/Level/Scenes/SheepExampleScene.unity";
 
-    private PlayerMessage playerMessage;
-    private Canvas messageCanvas;
+    private PlayerMessage _playerMessage;
+    private Canvas _messageCanvas;
 
     private IEnumerator Load()
     {
@@ -24,26 +24,26 @@ public class PlayerMessageTests
 
         // Wait for the local player's PlayerMessage component to spawn
         float timeout = Time.realtimeSinceStartup + 5f;
-        while (playerMessage == null && Time.realtimeSinceStartup < timeout)
+        while (_playerMessage == null && Time.realtimeSinceStartup < timeout)
         {
             foreach (var pm in Object.FindObjectsByType<PlayerMessage>(FindObjectsSortMode.None))
             {
                 if (pm.isOwner)
                 {
-                    playerMessage = pm;
+                    _playerMessage = pm;
                     break;
                 }
             }
             yield return null;
         }
 
-        Assert.That(playerMessage, Is.Not.Null, "PlayerMessage never spawned.");
-        Assert.That(playerMessage.isOwner, Is.True, "Local client does not own PlayerMessage.");
-        Assert.That(playerMessage.canvasGroup, Is.Not.Null, "CanvasGroup reference is missing on prefab.");
-        Assert.That(playerMessage.messageText, Is.Not.Null, "TMP_Text reference is missing on prefab.");
+        Assert.That(_playerMessage, Is.Not.Null, "PlayerMessage never spawned.");
+        Assert.That(_playerMessage.isOwner, Is.True, "Local client does not own PlayerMessage.");
+        Assert.That(_playerMessage.canvasGroup, Is.Not.Null, "CanvasGroup reference is missing on prefab.");
+        Assert.That(_playerMessage.messageText, Is.Not.Null, "TMP_Text reference is missing on prefab.");
 
-        messageCanvas = playerMessage.canvasGroup.GetComponentInParent<Canvas>();
-        Assert.That(messageCanvas, Is.Not.Null, "Parent Canvas is missing on prefab.");
+        _messageCanvas = _playerMessage.canvasGroup.GetComponentInParent<Canvas>();
+        Assert.That(_messageCanvas, Is.Not.Null, "Parent Canvas is missing on prefab.");
     }
 
     [UnityTest]
@@ -51,8 +51,8 @@ public class PlayerMessageTests
     {
         yield return Load();
 
-        Assert.That(playerMessage.canvasGroup.alpha, Is.EqualTo(0f));
-        Assert.That(messageCanvas.enabled, Is.False);
+        Assert.That(_playerMessage.canvasGroup.alpha, Is.EqualTo(0f));
+        Assert.That(_messageCanvas.enabled, Is.False);
     }
 
     [UnityTest]
@@ -60,31 +60,31 @@ public class PlayerMessageTests
     {
         yield return Load();
 
-        playerMessage.ShowMessage("Hello world!");
+        _playerMessage.ShowMessage("Hello world!");
 
         // Wait for ServerRpc -> TargetRpc roundtrip
         yield return new WaitUntil(
-            () => messageCanvas.enabled && playerMessage.messageText.text == "Hello world!",
+            () => _messageCanvas.enabled && _playerMessage.messageText.text == "Hello world!",
             System.TimeSpan.FromSeconds(2),
             () => Assert.Fail("Message never appeared on canvas after calling ShowMessage.")
         );
 
         // Wait for pop-in to reach full alpha
         yield return new WaitUntil(
-            () => Mathf.Approximately(playerMessage.canvasGroup.alpha, 1f),
-            System.TimeSpan.FromSeconds(playerMessage.popInDuration + 1f),
-            () => Assert.Fail($"Alpha never reached 1 after pop-in (was {playerMessage.canvasGroup.alpha}).")
+            () => Mathf.Approximately(_playerMessage.canvasGroup.alpha, 1f),
+            System.TimeSpan.FromSeconds(_playerMessage.popInDuration + 1f),
+            () => Assert.Fail($"Alpha never reached 1 after pop-in (was {_playerMessage.canvasGroup.alpha}).")
         );
 
         // Wait for hold duration + pop-out to complete and disable the canvas
-        float totalRemaining = playerMessage.messageDuration + playerMessage.popOutDuration;
+        float totalRemaining = _playerMessage.messageDuration + _playerMessage.popOutDuration;
         yield return new WaitUntil(
-            () => !messageCanvas.enabled,
+            () => !_messageCanvas.enabled,
             System.TimeSpan.FromSeconds(totalRemaining + 1f),
-            () => Assert.Fail($"Canvas did not disable after pop-out (alpha was {playerMessage.canvasGroup.alpha}).")
+            () => Assert.Fail($"Canvas did not disable after pop-out (alpha was {_playerMessage.canvasGroup.alpha}).")
         );
 
-        Assert.That(playerMessage.canvasGroup.alpha, Is.EqualTo(0f));
+        Assert.That(_playerMessage.canvasGroup.alpha, Is.EqualTo(0f));
     }
 
 
@@ -93,11 +93,11 @@ public class PlayerMessageTests
     {
         yield return Load();
 
-        playerMessage.ShowMessage("   ");
+        _playerMessage.ShowMessage("   ");
         yield return new WaitForSeconds(0.2f);
 
-        Assert.That(messageCanvas.enabled, Is.False, "Canvas should not enable for whitespace-only messages.");
-        Assert.That(playerMessage.canvasGroup.alpha, Is.EqualTo(0f));
+        Assert.That(_messageCanvas.enabled, Is.False, "Canvas should not enable for whitespace-only messages.");
+        Assert.That(_playerMessage.canvasGroup.alpha, Is.EqualTo(0f));
     }
 
     [UnityTest]
@@ -107,16 +107,16 @@ public class PlayerMessageTests
 
         // Send a message with leading/trailing spaces and 150 characters
         string longText = "   " + new string('A', 150) + "   ";
-        playerMessage.ShowMessage(longText);
+        _playerMessage.ShowMessage(longText);
 
         yield return new WaitUntil(
-            () => messageCanvas.enabled,
+            () => _messageCanvas.enabled,
             System.TimeSpan.FromSeconds(2),
             () => Assert.Fail("Truncated message never appeared.")
         );
 
         // ServerRpc should trim spaces and truncate to maxCharacterLength (120 by default)
-        Assert.That(playerMessage.messageText.text.Length, Is.EqualTo(120));
-        Assert.That(playerMessage.messageText.text, Is.EqualTo(new string('A', 120)));
+        Assert.That(_playerMessage.messageText.text.Length, Is.EqualTo(120));
+        Assert.That(_playerMessage.messageText.text, Is.EqualTo(new string('A', 120)));
     }
 }
