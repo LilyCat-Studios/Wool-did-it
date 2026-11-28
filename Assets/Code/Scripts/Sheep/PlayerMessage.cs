@@ -50,16 +50,16 @@ public class PlayerMessage : NetworkBehaviour
         _shrinkStartDistanceSqr = _shrinkStartDistance * _shrinkStartDistance;
 
         float maxNetworkDistance = _disappearDistance + _networkSendBuffer;
-        maxNetworkDistanceSqr = maxNetworkDistance * maxNetworkDistance;
+        _maxNetworkDistanceSqr = maxNetworkDistance * maxNetworkDistance;
 
         if (_canvasGroup == null) return;
 
-        messageCanvas = _canvasGroup.GetComponentInParent<Canvas>();
+        _messageCanvas = _canvasGroup.GetComponentInParent<Canvas>();
 
         Transform messageTransform = _canvasGroup.transform;
 
         _originalScale = messageTransform.localScale;
-        originalLocalPos = messageTransform.localPosition;
+        _originalLocalPos = messageTransform.localPosition;
 
         // Force TMP & Canvas to generate meshes/shaders now while hidden
         _canvasGroup.gameObject.SetActive(true);
@@ -122,7 +122,7 @@ public class PlayerMessage : NetworkBehaviour
                 float sqrDistance =
                     (netObj.transform.position - senderPos).sqrMagnitude;
 
-                if (sqrDistance <= maxNetworkDistanceSqr)
+                if (sqrDistance <= _maxNetworkDistanceSqr)
                 {
                     ShowMessageTargetRpc(player, message);
                     break;
@@ -159,33 +159,33 @@ public class PlayerMessage : NetworkBehaviour
 
         _messageText.text = message;
 
-        if (messageCanvas != null) messageCanvas.enabled = true;
+        if (_messageCanvas != null) _messageCanvas.enabled = true;
 
-        if (messageCanvas != null && !messageCanvas.enabled)
-            messageCanvas.enabled = true;
+        if (_messageCanvas != null && !_messageCanvas.enabled)
+            _messageCanvas.enabled = true;
 
-        if (animationCoroutine != null)
-            StopCoroutine(animationCoroutine);
+        if (_animationCoroutine != null)
+            StopCoroutine(_animationCoroutine);
 
-        animationCoroutine = StartCoroutine(PopUpRoutine());
+        _animationCoroutine = StartCoroutine(PopUpRoutine());
     }
 
     private void HideMessageImmediate()
     {
-        if (animationCoroutine != null)
+        if (_animationCoroutine != null)
         {
-            StopCoroutine(animationCoroutine);
-            animationCoroutine = null;
+            StopCoroutine(_animationCoroutine);
+            _animationCoroutine = null;
         }
 
-        currentAnimScale = _originalScale;
-        currentAnimAlpha = 0f;
+        _currentAnimScale = _originalScale;
+        _currentAnimAlpha = 0f;
 
         _canvasGroup.alpha = 0f;
         _canvasGroup.transform.localScale = _originalScale;
-        _canvasGroup.transform.localPosition = originalLocalPos;
+        _canvasGroup.transform.localPosition = _originalLocalPos;
 
-        if (messageCanvas != null) messageCanvas.enabled = false;
+        if (_messageCanvas != null) _messageCanvas.enabled = false;
     }
 
     private IEnumerator PopUpRoutine()
@@ -193,13 +193,13 @@ public class PlayerMessage : NetworkBehaviour
         Transform messageTransform = _canvasGroup.transform;
 
         Vector3 startPos =
-            originalLocalPos - new Vector3(0f, _floatUpDistance, 0f);
+            _originalLocalPos - new Vector3(0f, _floatUpDistance, 0f);
 
         Vector3 minScale = _originalScale * _startScale;
 
         // Set initial visual state immediately
-        currentAnimAlpha = 0f;
-        currentAnimScale = minScale;
+        _currentAnimAlpha = 0f;
+        _currentAnimScale = minScale;
         messageTransform.localPosition = startPos;
 
         // Wait one frame so TMP mesh generation doesn't eat into _popInDuration
@@ -216,9 +216,9 @@ public class PlayerMessage : NetworkBehaviour
             float bounceT = EaseOutBack(t);
             float smoothT = Mathf.SmoothStep(0f, 1f, t);
 
-            currentAnimAlpha = smoothT;
+            _currentAnimAlpha = smoothT;
 
-            currentAnimScale = Vector3.LerpUnclamped(
+            _currentAnimScale = Vector3.LerpUnclamped(
                 minScale,
                 _originalScale,
                 bounceT
@@ -226,17 +226,17 @@ public class PlayerMessage : NetworkBehaviour
 
             messageTransform.localPosition = Vector3.Lerp(
                 startPos,
-                originalLocalPos,
+                _originalLocalPos,
                 smoothT
             );
 
             yield return null;
         }
 
-        currentAnimAlpha = 1f;
-        currentAnimScale = _originalScale;
+        _currentAnimAlpha = 1f;
+        _currentAnimScale = _originalScale;
 
-        messageTransform.localPosition = originalLocalPos;
+        messageTransform.localPosition = _originalLocalPos;
 
         // 2. Hold
         yield return new WaitForSeconds(_messageDuration);
@@ -251,9 +251,9 @@ public class PlayerMessage : NetworkBehaviour
             float t = Mathf.Clamp01(timer / _popOutDuration);
             float smoothT = Mathf.SmoothStep(0f, 1f, t);
 
-            currentAnimAlpha = Mathf.Lerp(1f, 0f, smoothT);
+            _currentAnimAlpha = Mathf.Lerp(1f, 0f, smoothT);
 
-            currentAnimScale = Vector3.Lerp(
+            _currentAnimScale = Vector3.Lerp(
                 _originalScale,
                 minScale,
                 smoothT
@@ -277,7 +277,7 @@ public class PlayerMessage : NetworkBehaviour
 
     private void LateUpdate()
     {
-        if (_canvasGroup == null || (messageCanvas != null && !messageCanvas.enabled)) return;
+        if (_canvasGroup == null || (_messageCanvas != null && !_messageCanvas.enabled)) return;
 
         if (_localCamera == null)
             _localCamera = Camera.main;
@@ -298,8 +298,8 @@ public class PlayerMessage : NetworkBehaviour
             // Completely hide beyond maximum distance
             if (sqrDistance >= _disappearDistanceSqr)
             {
-                if (messageCanvas != null && messageCanvas.enabled)
-                    messageCanvas.enabled = false;
+                if (_messageCanvas != null && _messageCanvas.enabled)
+                    _messageCanvas.enabled = false;
 
                 messageTransform.localScale = Vector3.zero;
                 _canvasGroup.alpha = 0f;
@@ -308,8 +308,8 @@ public class PlayerMessage : NetworkBehaviour
             }
 
             // Re-enable canvas inside range
-            if (messageCanvas != null && !messageCanvas.enabled)
-                messageCanvas.enabled = true;
+            if (_messageCanvas != null && !_messageCanvas.enabled)
+                _messageCanvas.enabled = true;
 
             // Distance scaling
             if (sqrDistance > _shrinkStartDistanceSqr)
@@ -331,7 +331,7 @@ public class PlayerMessage : NetworkBehaviour
         }
 
         // Apply animation and distance scaling
-        messageTransform.localScale = currentAnimScale * distanceFactor;
-        _canvasGroup.alpha = currentAnimAlpha * distanceFactor;
+        messageTransform.localScale = _currentAnimScale * distanceFactor;
+        _canvasGroup.alpha = _currentAnimAlpha * distanceFactor;
     }
 }
