@@ -8,66 +8,66 @@ using System.Collections.Generic;
 public class PlayerMessage : NetworkBehaviour
 {
     [Header("References")]
-    [SerializeField] internal CanvasGroup canvasGroup;
-    [SerializeField] internal TMP_Text messageText;
+    [SerializeField] internal CanvasGroup _canvasGroup;
+    [SerializeField] internal TMP_Text _messageText;
 
     [Header("Timing")]
-    [SerializeField] internal float messageDuration = 3f;
-    [SerializeField] internal float popInDuration = 0.3f;
-    [SerializeField] internal float popOutDuration = 0.25f;
+    [SerializeField] internal float _messageDuration = 3f;
+    [SerializeField] internal float _popInDuration = 0.3f;
+    [SerializeField] internal float _popOutDuration = 0.25f;
 
     [Header("Pop-Up Feel")]
-    [SerializeField] private float startScale = 0.5f;
-    [SerializeField] private float floatUpDistance = 0.15f;
+    [SerializeField] private float _startScale = 0.5f;
+    [SerializeField] private float _floatUpDistance = 0.15f;
 
     [Header("Distance Scaling (Other Players)")]
-    [SerializeField] internal float shrinkStartDistance = 10f;
-    [SerializeField] internal float disappearDistance = 25f;
+    [SerializeField] internal float _shrinkStartDistance = 10f;
+    [SerializeField] internal float _disappearDistance = 25f;
 
     [Tooltip("Extra buffer distance on the server.")]
-    [SerializeField] private float networkSendBuffer = 5f;
+    [SerializeField] private float _networkSendBuffer = 5f;
 
     [Header("Settings")]
-    [SerializeField] internal int maxCharacterLength = 120;
+    [SerializeField] internal int _maxCharacterLength = 120;
 
-    internal Camera localCamera;
-    private Canvas messageCanvas;
-    private Coroutine animationCoroutine;
+    internal Camera _localCamera;
+    private Canvas _messageCanvas;
+    private Coroutine _animationCoroutine;
 
-    private Vector3 originalScale;
-    private Vector3 originalLocalPos;
+    private Vector3 _originalScale;
+    private Vector3 _originalLocalPos;
 
-    private Vector3 currentAnimScale;
-    private float currentAnimAlpha;
+    private Vector3 _currentAnimScale;
+    private float _currentAnimAlpha;
 
-    private float disappearDistanceSqr;
-    private float shrinkStartDistanceSqr;
-    private float maxNetworkDistanceSqr;
+    private float _disappearDistanceSqr;
+    private float _shrinkStartDistanceSqr;
+    private float _maxNetworkDistanceSqr;
 
     private void Awake()
     {
-        disappearDistanceSqr = disappearDistance * disappearDistance;
-        shrinkStartDistanceSqr = shrinkStartDistance * shrinkStartDistance;
+        _disappearDistanceSqr = _disappearDistance * _disappearDistance;
+        _shrinkStartDistanceSqr = _shrinkStartDistance * _shrinkStartDistance;
 
-        float maxNetworkDistance = disappearDistance + networkSendBuffer;
+        float maxNetworkDistance = _disappearDistance + _networkSendBuffer;
         maxNetworkDistanceSqr = maxNetworkDistance * maxNetworkDistance;
 
-        if (canvasGroup == null) return;
+        if (_canvasGroup == null) return;
 
-        messageCanvas = canvasGroup.GetComponentInParent<Canvas>();
+        messageCanvas = _canvasGroup.GetComponentInParent<Canvas>();
 
-        Transform messageTransform = canvasGroup.transform;
+        Transform messageTransform = _canvasGroup.transform;
 
-        originalScale = messageTransform.localScale;
+        _originalScale = messageTransform.localScale;
         originalLocalPos = messageTransform.localPosition;
 
         // Force TMP & Canvas to generate meshes/shaders now while hidden
-        canvasGroup.gameObject.SetActive(true);
-        if (messageText != null)
+        _canvasGroup.gameObject.SetActive(true);
+        if (_messageText != null)
         {
-            messageText.text = " ";
-            messageText.ForceMeshUpdate();
-            messageText.text = string.Empty;
+            _messageText.text = " ";
+            _messageText.ForceMeshUpdate();
+            _messageText.text = string.Empty;
         }
 
         HideMessageImmediate();
@@ -77,7 +77,7 @@ public class PlayerMessage : NetworkBehaviour
     {
         if (!asServer)
         {
-            localCamera = Camera.main;
+            _localCamera = Camera.main;
         }
     }
 
@@ -98,8 +98,8 @@ public class PlayerMessage : NetworkBehaviour
 
         message = message.Trim();
 
-        if (message.Length > maxCharacterLength)
-            message = message.Substring(0, maxCharacterLength);
+        if (message.Length > _maxCharacterLength)
+            message = message.Substring(0, _maxCharacterLength);
 
         Vector3 senderPos = transform.position;
 
@@ -135,21 +135,21 @@ public class PlayerMessage : NetworkBehaviour
     [TargetRpc]
     private void ShowMessageTargetRpc(PlayerID target, string message)
     {
-        if (canvasGroup == null || messageText == null)
+        if (_canvasGroup == null || _messageText == null)
             return;
 
         if (!isOwner)
         {
-            if (localCamera == null)
-                localCamera = Camera.main;
+            if (_localCamera == null)
+                _localCamera = Camera.main;
 
-            if (localCamera != null)
+            if (_localCamera != null)
             {
                 float sqrDistance =
-                    (canvasGroup.transform.position -
-                    localCamera.transform.position).sqrMagnitude;
+                    (_canvasGroup.transform.position -
+                    _localCamera.transform.position).sqrMagnitude;
 
-                if (sqrDistance >= disappearDistanceSqr)
+                if (sqrDistance >= _disappearDistanceSqr)
                 {
                     HideMessageImmediate();
                     return;
@@ -157,7 +157,7 @@ public class PlayerMessage : NetworkBehaviour
             }
         }
 
-        messageText.text = message;
+        _messageText.text = message;
 
         if (messageCanvas != null) messageCanvas.enabled = true;
 
@@ -178,40 +178,40 @@ public class PlayerMessage : NetworkBehaviour
             animationCoroutine = null;
         }
 
-        currentAnimScale = originalScale;
+        currentAnimScale = _originalScale;
         currentAnimAlpha = 0f;
 
-        canvasGroup.alpha = 0f;
-        canvasGroup.transform.localScale = originalScale;
-        canvasGroup.transform.localPosition = originalLocalPos;
+        _canvasGroup.alpha = 0f;
+        _canvasGroup.transform.localScale = _originalScale;
+        _canvasGroup.transform.localPosition = originalLocalPos;
 
         if (messageCanvas != null) messageCanvas.enabled = false;
     }
 
     private IEnumerator PopUpRoutine()
     {
-        Transform messageTransform = canvasGroup.transform;
+        Transform messageTransform = _canvasGroup.transform;
 
         Vector3 startPos =
-            originalLocalPos - new Vector3(0f, floatUpDistance, 0f);
+            originalLocalPos - new Vector3(0f, _floatUpDistance, 0f);
 
-        Vector3 minScale = originalScale * startScale;
+        Vector3 minScale = _originalScale * _startScale;
 
         // Set initial visual state immediately
         currentAnimAlpha = 0f;
         currentAnimScale = minScale;
         messageTransform.localPosition = startPos;
 
-        // Wait one frame so TMP mesh generation doesn't eat into popInDuration
+        // Wait one frame so TMP mesh generation doesn't eat into _popInDuration
         yield return null;
 
         // 1. Pop In
         float timer = 0f;
-        while (timer < popInDuration)
+        while (timer < _popInDuration)
         {
             timer += Mathf.Min(Time.deltaTime, 0.05f);
 
-            float t = Mathf.Clamp01(timer / popInDuration);
+            float t = Mathf.Clamp01(timer / _popInDuration);
 
             float bounceT = EaseOutBack(t);
             float smoothT = Mathf.SmoothStep(0f, 1f, t);
@@ -220,7 +220,7 @@ public class PlayerMessage : NetworkBehaviour
 
             currentAnimScale = Vector3.LerpUnclamped(
                 minScale,
-                originalScale,
+                _originalScale,
                 bounceT
             );
 
@@ -234,27 +234,27 @@ public class PlayerMessage : NetworkBehaviour
         }
 
         currentAnimAlpha = 1f;
-        currentAnimScale = originalScale;
+        currentAnimScale = _originalScale;
 
         messageTransform.localPosition = originalLocalPos;
 
         // 2. Hold
-        yield return new WaitForSeconds(messageDuration);
+        yield return new WaitForSeconds(_messageDuration);
 
         // 3. Pop Out
         timer = 0f;
 
-        while (timer < popOutDuration)
+        while (timer < _popOutDuration)
         {
             timer += Time.deltaTime;
 
-            float t = Mathf.Clamp01(timer / popOutDuration);
+            float t = Mathf.Clamp01(timer / _popOutDuration);
             float smoothT = Mathf.SmoothStep(0f, 1f, t);
 
             currentAnimAlpha = Mathf.Lerp(1f, 0f, smoothT);
 
             currentAnimScale = Vector3.Lerp(
-                originalScale,
+                _originalScale,
                 minScale,
                 smoothT
             );
@@ -277,17 +277,17 @@ public class PlayerMessage : NetworkBehaviour
 
     private void LateUpdate()
     {
-        if (canvasGroup == null || (messageCanvas != null && !messageCanvas.enabled)) return;
+        if (_canvasGroup == null || (messageCanvas != null && !messageCanvas.enabled)) return;
 
-        if (localCamera == null)
-            localCamera = Camera.main;
+        if (_localCamera == null)
+            _localCamera = Camera.main;
 
-        if (localCamera == null) return;
+        if (_localCamera == null) return;
 
-        Transform messageTransform = canvasGroup.transform;
+        Transform messageTransform = _canvasGroup.transform;
 
         Vector3 direction =
-            messageTransform.position - localCamera.transform.position;
+            messageTransform.position - _localCamera.transform.position;
 
         float distanceFactor = 1f;
 
@@ -296,13 +296,13 @@ public class PlayerMessage : NetworkBehaviour
             float sqrDistance = direction.sqrMagnitude;
 
             // Completely hide beyond maximum distance
-            if (sqrDistance >= disappearDistanceSqr)
+            if (sqrDistance >= _disappearDistanceSqr)
             {
                 if (messageCanvas != null && messageCanvas.enabled)
                     messageCanvas.enabled = false;
 
                 messageTransform.localScale = Vector3.zero;
-                canvasGroup.alpha = 0f;
+                _canvasGroup.alpha = 0f;
 
                 return;
             }
@@ -312,13 +312,13 @@ public class PlayerMessage : NetworkBehaviour
                 messageCanvas.enabled = true;
 
             // Distance scaling
-            if (sqrDistance > shrinkStartDistanceSqr)
+            if (sqrDistance > _shrinkStartDistanceSqr)
             {
                 float distance = Mathf.Sqrt(sqrDistance);
 
                 distanceFactor = 1f - Mathf.InverseLerp(
-                    shrinkStartDistance,
-                    disappearDistance,
+                    _shrinkStartDistance,
+                    _disappearDistance,
                     distance
                 );
             }
@@ -332,6 +332,6 @@ public class PlayerMessage : NetworkBehaviour
 
         // Apply animation and distance scaling
         messageTransform.localScale = currentAnimScale * distanceFactor;
-        canvasGroup.alpha = currentAnimAlpha * distanceFactor;
+        _canvasGroup.alpha = currentAnimAlpha * distanceFactor;
     }
 }
