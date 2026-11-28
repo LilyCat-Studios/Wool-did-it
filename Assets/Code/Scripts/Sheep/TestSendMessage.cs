@@ -7,7 +7,7 @@ public class TestSendMessage : MonoBehaviour
 {
     [Header("Random Messages")]
     [SerializeField]
-    private string[] messages =
+    private string[] _messages =
     {
         "Hello everyone!",
         "Nice to meet you!",
@@ -32,9 +32,9 @@ public class TestSendMessage : MonoBehaviour
 
     private void SendRandomMessage()
     {
-        if (messages == null || messages.Length == 0 || _playerMessage == null) return;
+        if (_messages == null || _messages.Length == 0 || _playerMessage == null) return;
 
-        int randomIndex = Random.Range(0, messages.Length);
-        _playerMessage.ShowMessage(messages[randomIndex]);
+        int randomIndex = Random.Range(0, _messages.Length);
+        _playerMessage.ShowMessage(_messages[randomIndex]);
     }
 }
